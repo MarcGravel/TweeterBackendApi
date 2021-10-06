@@ -1,6 +1,5 @@
 import sys
 from app_package import app
-import mariadb
 
 #This file is entry point of app
 #see endpoints/__init__ for flask and app initialization

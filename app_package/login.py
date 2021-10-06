@@ -74,11 +74,11 @@ def api_login():
                 # checks proper keys are submitted, if yes then query database for matching email and password
                 if {"loginToken"} <= data.keys():
                     token = data.get("loginToken")
-                    cursor.execute("SELECT * FROM user_session WHERE login_token=?", [token])
-                    check_token = cursor.fetchone()
+                    cursor.execute("SELECT EXISTS(SELECT * FROM user_session WHERE login_token=?)", [token])
+                    check_token = cursor.fetchone()[0]
                     
-                    if check_token != None:
-
+                    #if the token value exists, cursor has return a 1, so we check if value is 1 or 0
+                    if check_token == 1:
                         cursor.execute("DELETE FROM user_session WHERE login_token=?", [token])
                         conn.commit()
                         return Response(status=204)
