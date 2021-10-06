@@ -28,6 +28,8 @@ The login end point supports only the POST and DELETE methods.
 
 ### POST
 ```json
+Example Data:
+
 JSON Data Sent:
     { 
       "email": "example@gmail.com",
@@ -49,6 +51,8 @@ JSON Data Returned:
 ```
 ### DELETE
 ```json
+Example Data:
+
 JSON Data Sent:
     { 
       "loginToken": "LIAbfvh341uNAS314"
