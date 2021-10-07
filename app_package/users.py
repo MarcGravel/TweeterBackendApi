@@ -20,12 +20,14 @@ def api_users():
 
         if request.method == 'GET':
             params = request.args
+
             # checks length of json dict (2 different requests are accepted), if values do not match correct amount, returns error message
             if len(params.keys()) == 0:
                 cursor.execute("SELECT id, email, username, bio, birthdate, imageUrl, bannerUrl FROM user")
                 all_users = cursor.fetchall()
                 all_user_Dict = []
 
+                #adds all users to a dictionary to return
                 for u in all_users:
                     user = {
                         "userId": u[0],
@@ -39,14 +41,18 @@ def api_users():
                     all_user_Dict.append(user)
 
                 return Response(json.dumps(all_user_Dict), mimetype="application/json", status=200)
-                
+            
+            #if client sends over a userid param. checks proper key amount and then key name
             elif len(params.keys()) == 1:
                 if {"userId"} <= params.keys():
                     paramId = params.get("userId")
 
+                    #checks if param id exists as a user id in DB
+                    #if not exists, returns 0. If exists, returns one. 
                     cursor.execute("SELECT EXISTS(SELECT * FROM user WHERE id=?)", [paramId])
                     check_id_valid = cursor.fetchone()[0]
 
+                    #handles response of EXISTS query
                     if check_id_valid == 1:
                         cursor.execute("SELECT id, email, username, bio, birthdate, imageUrl, bannerUrl FROM user WHERE id=?", [paramId])
                         sel_usr = cursor.fetchone()
@@ -70,7 +76,7 @@ def api_users():
             else:
                 print("Too much JSON data submitted")
                 return Response("Too much data submitted", mimetype='text/plain', status=400)
-                
+
         elif request.method == 'POST':
             pass
         elif request.method == 'PATCH':
