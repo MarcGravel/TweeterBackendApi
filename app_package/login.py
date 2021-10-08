@@ -45,17 +45,9 @@ def api_login():
                             usr = cursor.fetchone()
                             login_token = secrets.token_urlsafe(16)
                             
-                            #response data    
-                            resp = {
-                                "userId": usr[0],
-                                "email": usr[1],
-                                "username": usr[2],
-                                "bio": usr[3],
-                                "birthdate": usr[4],
-                                "loginToken": login_token,
-                                "imageUrl": usr[5],
-                                "bannerUrl": usr[6] 
-                            }
+                            #response data populat dict and add token   
+                            resp = pop_dict_query(usr)
+                            resp["loginToken"] = login_token
 
                             #add token to user session
                             cursor.execute("INSERT INTO user_session(user_id, login_token) VALUES(?,?)", [usr[0], login_token])
@@ -125,3 +117,16 @@ def check_email(email):
         return True
     else:
         return False
+
+#populates dict FROM SQL QUERY tuples or lists
+def pop_dict_query(data):
+    user = {
+        "userId": data[0],
+        "email": data[1],
+        "username": data[2],
+        "bio": data[3],
+        "birthdate": data[4],
+        "imageUrl": data[5],
+        "bannerUrl": data[6] 
+    }
+    return user

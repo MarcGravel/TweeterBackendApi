@@ -20,9 +20,9 @@ Werkzeug==2.0.2
 bjoern==3.1.0
 ```
 
-## Usage
+# Usage
 
-### User Login: /api/login
+## User Login: /api/login
 The login end point supports only the POST and DELETE methods.
 
 

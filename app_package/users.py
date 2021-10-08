@@ -24,24 +24,16 @@ def api_users():
 
             # checks length of json dict (2 different requests are accepted), if values do not match correct amount, returns error message
             if len(params.keys()) == 0:
-                cursor.execute("SELECT id, email, username, bio, birthdate, imageUrl, bannerUrl FROM user")
+                cursor.execute("SELECT id, email, username, bio, birthdate, image_url, banner_url FROM user")
                 all_users = cursor.fetchall()
-                all_user_Dict = []
+                all_user_list = []
 
                 #adds all users to a dictionary to return
                 for u in all_users:
-                    user = {
-                        "userId": u[0],
-                        "email": u[1],
-                        "username": u[2],
-                        "bio": u[3],
-                        "birthdate": u[4],
-                        "imageUrl": u[5],
-                        "bannerUrl": u[6] 
-                    }
-                    all_user_Dict.append(user)
+                    user = pop_dict_query(u)
+                    all_user_list.append(user)
 
-                return Response(json.dumps(all_user_Dict), mimetype="application/json", status=200)
+                return Response(json.dumps(all_user_list), mimetype="application/json", status=200)
             
             #if client sends over a userid param. checks proper key amount and then key name
             elif len(params.keys()) == 1:
@@ -59,18 +51,10 @@ def api_users():
 
                     #handles response of EXISTS query
                     if check_id_valid == 1:
-                        cursor.execute("SELECT id, email, username, bio, birthdate, imageUrl, bannerUrl FROM user WHERE id=?", [paramId])
+                        cursor.execute("SELECT id, email, username, bio, birthdate, image_url, banner_url FROM user WHERE id=?", [paramId])
                         sel_usr = cursor.fetchone()
 
-                        resp = {
-                            "userId": sel_usr[0],
-                            "email": sel_usr[1],
-                            "username": sel_usr[2],
-                            "bio": sel_usr[3],
-                            "birthdate": sel_usr[4],
-                            "imageUrl": sel_usr[5],
-                            "bannerUrl": sel_usr[6] 
-                        }
+                        resp = pop_dict_query(sel_usr)
 
                         return Response(json.dumps(resp), mimetype="application/json", status=200)
                     else:
@@ -84,9 +68,6 @@ def api_users():
 
         elif request.method == 'POST':
             data = request.json
-            new_user = {
-
-            }
             
             if len(data.keys()) == 5 or len(data.keys()) == 6 or len(data.keys()) == 7: 
                 if {"email", "username", "password", "bio", "birthdate"} <= data.keys() or \
@@ -94,16 +75,9 @@ def api_users():
                             {"email", "username", "password", "bio", "birthdate", "bannerUrl"} <= data.keys() or \
                                 {"email", "username", "password", "bio", "birthdate", "imageUrl", "bannerUrl"} <= data.keys():
 
-                        #.strip() will remove all leading and trailing whitespace    
-                        new_user = {
-                            "email": str(data.get("email")).strip(),
-                            "username": str(data.get("username")).strip(),
-                            "password": str(data.get("password")).strip(),
-                            "bio": str(data.get("bio")).strip(),
-                            "birthdate": data.get("birthdate"),
-                            "imageUrl": str(data.get("imageUrl")).strip(),
-                            "bannerUrl": str(data.get("bannerUrl")).strip()
-                        }
+                        #populates dict and handles whitespaces
+                        new_user = pop_dict_req(data)   
+                        
                 else: 
                     print("Incorrect data submitted. Check keys")
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
@@ -156,7 +130,6 @@ def api_users():
 
             cursor.execute("SELECT id FROM user WHERE email=?", [new_user["email"]])
             user_id = cursor.fetchone()[0]
-            print(user_id)
 
             #checks if client sent info for image or banner url and updates if required
             if new_user["imageUrl"] != "None":
@@ -230,3 +203,25 @@ def check_length(input, min_len, max_len):
         return True
     else:
         return False
+
+#populates dict FROM SQL QUERY tuples or lists
+def pop_dict_query(data):
+    user = {
+        "userId": data[0],
+        "email": data[1],
+        "username": data[2],
+        "bio": data[3],
+        "birthdate": data[4],
+        "imageUrl": data[5],
+        "bannerUrl": data[6] 
+    }
+    return user
+
+#populates dict FROM JSON DATA REQ and removes leading and trailing whitespaces
+def pop_dict_req(data):
+    new_dict = {
+    }
+    for k, v in data.items():
+        new_dict[k] = str(v).strip()
+
+    return new_dict
