@@ -27,6 +27,10 @@ The login end point supports only the POST and DELETE methods.
 
 
 ### POST
+POST will log a user in if the username / password combo match.
+Return data contains confirmation information about the user as well as a login token
+An error will be returned if the login information is invalid.
+
 ```json
 Example Data:
 
@@ -59,6 +63,15 @@ JSON Data Sent:
     }
 
 No Data Returned
+```
+
+## Users: /api/users
+The login end point supports GET, POST, PATCH and DELETE methods.
+
+### GET
+```json
+Example Data:
+
 ```
 
 

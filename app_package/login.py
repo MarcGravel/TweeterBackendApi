@@ -58,6 +58,40 @@ def api_login():
                             return Response("Invalid credentials.", mimetype='text/plain', status=400)
                     else:
                         return Response("Email does not exist in database", mimetype="text/plain", status=400)
+
+                elif {"username", "password"} <= data.keys():
+                    username = data.get("username")
+                    password = data.get("password")
+                    
+                    #checks if username exists
+                    cursor.execute("SELECT EXISTS(SELECT email FROM user WHERE username=?)", [username])
+                    username_valid = cursor.fetchone()[0]
+
+                    #username_valid returns a 1 if username exists in db, and a 0 if not
+                    if username_valid == 1:
+                        cursor.execute("SELECT password FROM user WHERE username=?", [username])
+                        db_pass = cursor.fetchone()[0]
+
+                        # if matching, generate a login token, store it in user session and return success message with token and all user data
+                        if db_pass == password:
+                            cursor.execute("SELECT id, email, username, bio, birthdate, image_url, banner_url FROM user WHERE username=?", [username])
+                            usr = cursor.fetchone()
+                            login_token = secrets.token_urlsafe(16)
+                            
+                            #response data populate dict and add token   
+                            resp = pop_dict_query(usr)
+                            resp["loginToken"] = login_token
+
+                            #add token to user session
+                            cursor.execute("INSERT INTO user_session(user_id, login_token) VALUES(?,?)", [usr[0], login_token])
+                            conn.commit()
+
+                            return Response(json.dumps(resp), mimetype="application/json", status=201)
+                        else:
+                            return Response("Invalid credentials.", mimetype='text/plain', status=400)
+                    else:
+                        return Response("Username does not exist in database", mimetype="text/plain", status=400)
+
                 else:
                     print("Incorrect data submitted. Check key")
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
