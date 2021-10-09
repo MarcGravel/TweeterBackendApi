@@ -31,9 +31,12 @@ The login end point supports only the POST and DELETE methods.
 HTTP success code: 201
 
 POST will log a user in if the username / password combo match.
-Return data contains confirmation information about the user as well as a login token
+
+Return data contains confirmation information about the user as well as a login token.
+
 An error will be returned if the login information is invalid.
-Client can send either username OR email along with the password for login validation  
+
+Client can send either username OR email along with the password for login validation.  
   
 Required data: {"email", "password"} OR {"username", "password"}
 
@@ -62,9 +65,11 @@ JSON Data Returned:
 ### DELETE
 HTTP success code: 204
 
-DELETE will destroy the login token
-An error will be returned if the loginToken is invalid
-No data returned  
+DELETE will destroy the login token.
+
+An error will be returned if the loginToken is invalid.
+
+No data returned.    
   
 Required data: {"loginToken"}
 ```json
@@ -85,8 +90,11 @@ The users end point supports GET, POST, PATCH and DELETE methods.
 HTTP success code: 200
 
 GET will send all users information OR only a specific users information.
+
 For all users, make a request with no params. If you want a specific users info, send the user id.
+
 The value for bannerUrl and imageUrl will either contain the URL of their profile image or null if the user has no images.
+
 An error will be returned if a userId does not exist.  
   
 Required params: None OR {"userId"}
@@ -115,8 +123,10 @@ JSON Data Returned:
 ### POST
 HTTP success code: 201
 
-POST will create a new user if no conflicting current user
-When sending valid data about user, you are sent back conformation information about the new user. Along with a loginToken
+POST will create a new user if no conflicting current user.
+
+When sending valid data about user, you are sent back conformation information about the new user. Along with a loginToken.
+
 An error will be returned if a username or email already exists.  
   
 Required Data: {"email", "username", "password", "bio", "birthdate"}  
@@ -151,11 +161,16 @@ JSON Data Returned:
 ### PATCH
 HTTP success code: 200
 
-PATCH will update user if no conflicts exist
-Conflicts include username or email that already exist or out of range values 
-Login token is required for all updates
-Example shows just bio being updated, but you can send multiple values to update at once as long as they are: bio, birthdate, email, username, bannerUrl or imageUrl
-Password and user id cannot be updated
+PATCH will update user if no conflicts exist.
+
+Conflicts include username or email that already exist or out of range values.
+
+Login token is required for all updates.
+
+Example shows just bio being updated, but you can send multiple values to update at once as long as they are: bio, birthdate, email, username, bannerUrl or imageUrl.
+
+Password and user id cannot be updated.
+
 An error will be returned if you try to change the username or email to one that already exists or if you send invalid data.  
   
 Required Data: {"loginToken"}  
@@ -184,8 +199,10 @@ JSON Data Returned:
 ### DELETE
 HTTP success code: 204
 
-DELETE will delete the user if valid information is sent. Login token must belong to user with matching password
+DELETE will delete the user if valid information is sent. Login token must belong to user with matching password.
+
 No data is returned on a valid delete.
+
 An error will be returned if the loginToken and password combo are not valid.  
   
 Required Data: {"loginToken", "password"}
@@ -207,7 +224,8 @@ The follows end point supports GET, POST and DELETE methods.
 ### GET
 HTTP success code: 200
 
-GET requires a user id to be sent. GET will return information about all users that the user id follows
+GET requires a user id to be sent. GET will return information about all users that the user id follows.
+
 An error will be returned if the userId does not exist or is invalid.  
   
 Required Data: {"userId"}
@@ -245,7 +263,8 @@ JSON Data Returned:
 ### POST 
 HTTP success code: 204
 
-POST will create a follow relationship between two users
+POST will create a follow relationship between two users.
+
 An error will be returned if the loginToken or followId are invalid.  
   
 Required Data: {"loginToken", "followId"}
@@ -264,7 +283,8 @@ No data returned
 ### DELETE
 HTTP success code: 204
 
-DELETE will destroy follow relationship between user and user with userId matching sent followId (unfollow)
+DELETE will destroy follow relationship between user and user with userId matching sent followId (unfollow).
+
 An error will be returned if the loginToken or followId are invalid.  
   
 Required Data: {"loginToken", "followId"}
