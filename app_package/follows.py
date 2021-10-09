@@ -40,15 +40,15 @@ def api_follows():
                         all_follows = cursor.fetchall()
                         all_follows_list = []
 
-                        #adds all users to a key formatted dict to return
+                        #adds all valid users to a key formatted dict to return
                         for a in all_follows:
                             user = pop_dict_query(a)
                             all_follows_list.append(user)
 
                         return Response(json.dumps(all_follows_list), mimetype="application/json", status=200)
-                        
+
                     else: 
-                        return Response("user id does not exist", mimetype="text/plain", status=400)
+                        return Response("User id does not exist", mimetype="text/plain", status=400)
 
                 else:
                     print("Incorrect data submitted. Check key")
