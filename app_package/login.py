@@ -1,4 +1,6 @@
 from app_package import app
+from app_package.users import pop_dict_query
+from app_package.users import check_email
 from flask import Flask, request, Response
 import mariadb
 import dbcreds
@@ -146,23 +148,3 @@ def api_login():
             conn.rollback()
             conn.close()
 
-# Regular expression for email string
-def check_email(email):
-    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-    if(re.fullmatch(regex, email)):
-        return True
-    else:
-        return False
-
-#populates dict FROM SQL QUERY tuples or lists
-def pop_dict_query(data):
-    user = {
-        "userId": data[0],
-        "email": data[1],
-        "username": data[2],
-        "bio": data[3],
-        "birthdate": data[4],
-        "imageUrl": data[5],
-        "bannerUrl": data[6] 
-    }
-    return user

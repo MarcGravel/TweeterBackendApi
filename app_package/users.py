@@ -82,7 +82,7 @@ def api_users():
                     print("Incorrect data submitted. Check keys")
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
             else: 
-                return Response("Not a valid number of arguments sent", mimetype="text/plain", status=400)
+                return Response("Not a valid amount of data sent", mimetype="text/plain", status=400)
 
             #check email valid and proper character count
             if not check_email(new_user["email"]):
@@ -273,7 +273,7 @@ def api_users():
                         token_valid = cursor.fetchone()[0]
 
                         if token_valid == 1:
-                            #checks if user assigned to token has matching password (also grabs id for easy dlete if future checks pass)
+                            #checks if user assigned to token has matching password (also grabs id for easy delete if future checks pass)
                             cursor.execute("SELECT login_token, password, u.id FROM user u INNER JOIN user_session s ON u.id = s.user_id WHERE login_token=?", [token])
                             compare_tbl = cursor.fetchone()
                             
@@ -288,7 +288,8 @@ def api_users():
                         else:
                             print("Token does not exist in db")
                             return Response("Invalid Login Token", mimetype="text/plain", status=400)
-                    
+                    else: 
+                        return Response("Invalid Login Token", mimetype="text/plain", status=400)
                 else:
                     return Response("Invalid Json Data. Check keys", mimetype="text/plain", status=400)
             
@@ -315,7 +316,6 @@ def api_users():
         if (conn != None):
             conn.rollback()
             conn.close()
-
 
 # Regular expression for email string
 def check_email(email):
