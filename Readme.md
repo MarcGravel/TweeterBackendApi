@@ -184,7 +184,6 @@ JSON Data Sent:
     { 
       "loginToken": "LIAbfvh341uNAS314",
       "password": "ISavedChristmas"
-
     }
 
 No Data Returned

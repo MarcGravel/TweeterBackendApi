@@ -28,7 +28,7 @@ def api_users():
                 all_users = cursor.fetchall()
                 all_user_list = []
 
-                #adds all users to a dictionary to return
+                #adds all users to a key formatted dict to return
                 for u in all_users:
                     user = pop_dict_query(u)
                     all_user_list.append(user)
@@ -38,20 +38,20 @@ def api_users():
             #if client sends over a userid param. checks proper key amount and then key name
             elif len(params.keys()) == 1:
                 if {"userId"} <= params.keys():
-                    paramId = params.get("userId")
+                    param_id = params.get("userId")
 
-                    #checks if is valid number
-                    if paramId.isdigit() == False:
+                    #checks if valid positive integer
+                    if param_id.isdigit() == False:
                         return Response("Not a valid id number", mimetype="text/plain", status=400)
 
                     #checks if param id exists as a user id in DB
                     #if not exists, returns 0. If exists, returns one. 
-                    cursor.execute("SELECT EXISTS(SELECT * FROM user WHERE id=?)", [paramId])
+                    cursor.execute("SELECT EXISTS(SELECT * FROM user WHERE id=?)", [param_id])
                     check_id_valid = cursor.fetchone()[0]
 
                     #handles response of EXISTS query
                     if check_id_valid == 1:
-                        cursor.execute("SELECT id, email, username, bio, birthdate, image_url, banner_url FROM user WHERE id=?", [paramId])
+                        cursor.execute("SELECT id, email, username, bio, birthdate, image_url, banner_url FROM user WHERE id=?", [param_id])
                         sel_usr = cursor.fetchone()
 
                         resp = pop_dict_query(sel_usr)
