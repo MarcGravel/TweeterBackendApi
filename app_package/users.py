@@ -3,9 +3,9 @@ import dbcreds
 import mariadb
 from flask import Flask, request, Response
 import json
-# re provides support for regular expressions
-import re
-import secrets
+import re #re provides support for regular expressions
+import secrets #package to create session token strings
+import validators #validates URLs
 
 @app.route('/api/users', methods=['GET', 'POST', 'PATCH', 'DELETE'])
 def api_users():
@@ -75,7 +75,7 @@ def api_users():
                             {"email", "username", "password", "bio", "birthdate", "bannerUrl"} <= data.keys() or \
                                 {"email", "username", "password", "bio", "birthdate", "imageUrl", "bannerUrl"} <= data.keys():
 
-                        #populates dict and handles whitespaces
+                        #populates a clean dict that handles whitespaces
                         new_user = pop_dict_req(data)   
                         
                 else: 
@@ -116,7 +116,7 @@ def api_users():
 
             #check bio valid
             if not check_length(new_user["bio"], 1, 70):
-                return Response("Password must be between 1 and 70 characters", mimetype="text/plain", status=400)
+                return Response("Bio must be between 1 and 70 characters", mimetype="text/plain", status=400)
 
             #check birthdate valid
             if not check_length(new_user["birthdate"], 1, 30):
@@ -131,14 +131,16 @@ def api_users():
             cursor.execute("SELECT id FROM user WHERE email=?", [new_user["email"]])
             user_id = cursor.fetchone()[0]
 
-            #checks if client sent info for image or banner url and updates if required
+            #checks if client sent info for image or banner url, checks validity of url links then updates.
             if new_user["imageUrl"] != "None":
-                cursor.execute("UPDATE user SET image_url=? WHERE id=?", [new_user["imageUrl"], user_id])
-                conn.commit()
+                if not validators.url(new_user["imageUrl"]): 
+                    cursor.execute("UPDATE user SET image_url=? WHERE id=?", [new_user["imageUrl"], user_id])
+                    conn.commit()
                 
             if new_user["bannerUrl"] != "None":
-                cursor.execute("UPDATE user SET banner_url=? WHERE id=?", [new_user["bannerUrl"], user_id])
-                conn.commit()
+                if not validators.url(new_user["bannerUrl"]):
+                    cursor.execute("UPDATE user SET banner_url=? WHERE id=?", [new_user["bannerUrl"], user_id])
+                    conn.commit()
 
             #create session token and add token/user to session table
             login_token = secrets.token_urlsafe(16)
@@ -148,22 +150,114 @@ def api_users():
             #get all data from tables and return a response
             cursor.execute("SELECT id, email, username, bio, birthdate, image_url, banner_url FROM user WHERE id=?", [user_id])
             usr = cursor.fetchone()
-    
-            resp = {
-                "userId": usr[0],
-                "email": usr[1],
-                "username": usr[2],
-                "bio": usr[3],
-                "birthdate": usr[4],
-                "imageUrl": usr[5],
-                "bannerUrl": usr[6],
-                "loginToken": login_token 
-            }
+
+            #populates dict and then adds the login token
+            resp = pop_dict_query(usr)   
+            resp["loginToken"] = login_token 
 
             return Response(json.dumps(resp), mimetype="application/json", status=201)
 
         elif request.method == 'PATCH':
-            pass
+            data = request.json
+            token = data.get("loginToken")
+
+            if token != None:
+                cursor.execute("SELECT EXISTS(SELECT login_token from user_session WHERE login_token=?)", [token])
+                token_valid = cursor.fetchone()[0]
+                
+                if token_valid == 1:
+                    #removes any keys that should not exist in request
+                    allowed_keys = {"loginToken", "email", "username", "bio", "birthdate", "imageUrl", "bannerUrl"}
+                    allowed_data(data, allowed_keys)
+
+                    #populates a new dict to handle all whitespaces
+                    upd_user = pop_dict_req(data)
+
+                    #check email valid and proper character count
+                    if "email" in upd_user:
+                        if not check_email(upd_user["email"]):
+                            return Response("Not a valid email address", mimetype="text/plain", status=400)
+
+                        #check email length
+                        if not check_length(upd_user["email"], 1, 40):
+                            return Response("Email is too long", mimetype="text/plain", status=400)
+
+                        #check email exists in db
+                        cursor.execute("SELECT EXISTS(SELECT email FROM user WHERE email=?)", [upd_user["email"]])
+                        check_email_exists = cursor.fetchone()[0]
+
+                        if check_email_exists == 1:
+                            return Response("Email already exists", mimetype="text/plain", status=400)
+
+                        #runs update query if all email checks pass
+                        cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET email=? WHERE login_token=?", [upd_user["email"], token])
+                        conn.commit()
+
+                    #check username valid
+                    if "username" in upd_user:
+                        if not check_length(upd_user["username"], 1, 50):
+                            return Response("Username must be between 1 and 50 characters", mimetype="text/plain", status=400)
+
+                        #check username exists in db
+                        cursor.execute("SELECT EXISTS(SELECT username FROM user WHERE username=?)", [upd_user["username"]])
+                        check_username_exists = cursor.fetchone()[0]
+
+                        if check_username_exists == 1:
+                            return Response("Username already exists", mimetype="text/plain", status=400)
+
+                        #runs update query if all username checks pass
+                        cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET username=? WHERE login_token=?", [upd_user["username"], token])
+                        conn.commit()
+
+                    #check bio valid
+                    if "bio" in upd_user:
+                        if not check_length(upd_user["bio"], 1, 70):
+                            return Response("Bio must be between 1 and 70 characters", mimetype="text/plain", status=400)
+                        
+                        #runs update query if bio check passes
+                        cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET bio=? WHERE login_token=?", [upd_user["bio"], token])
+                        conn.commit()
+
+                    #check birthdate valid
+                    if "birthdate" in upd_user:
+                        if not check_length(upd_user["birthdate"], 1, 30):
+                            return Response("Birthdate value must be between 1 and 30 characters", mimetype="text/plain", status=400)
+
+                        #runs update query if birthdate check passes
+                        cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET birthdate=? WHERE login_token=?", [upd_user["birthdate"], token])
+                        conn.commit()
+
+                    #checks if urls are valid format
+                    if "imageUrl" in upd_user:
+                        if not validators.url(upd_user["imageUrl"]):
+                            return Response("Not a valid Url for image", mimetype="text/plain", status=400)
+                        
+                        #runs update query if imageUrl check passes
+                        cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET image_url=? WHERE login_token=?", [upd_user["imageUrl"], token])
+                        conn.commit()
+
+                    if "bannerUrl" in upd_user:
+                        if not validators.url(upd_user["bannerUrl"]):
+                            return Response("Not a valid Url for banner", mimetype="text/plain", status=400)
+
+                        #runs update query if bannerUrl check passes
+                        cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET banner_url=? WHERE login_token=?", [upd_user["bannerUrl"], token])
+                        conn.commit()
+                    
+                    #get updated user info
+                    cursor.execute("SELECT u.id, email, username, bio, birthdate, image_url, banner_url FROM user u INNER JOIN user_session s ON u.id = s.user_id WHERE login_token=?", [token])
+                    updated = cursor.fetchone()
+                    resp = pop_dict_query(updated)
+                    
+                    return Response(json.dumps(resp), mimetype="application/json", status=200)
+                
+                else:
+                    print("Token does not exist in db")
+                    return Response("Invalid Login Token", mimetype="text/plain", status=400)
+
+            else:
+                print("No login token") 
+                return Response("A login token is required", mimetype="text/plain", status=400)
 
         elif request.method == 'DELETE':
             pass
@@ -180,7 +274,8 @@ def api_users():
         return Response("Something is wrong with the connection", mimetype='text/plain', status=500)
     except:
         print("Something went wrong")
-        return Response("Something went wrong", mimetype='text/plain', status=500)
+        return Response("Something went wrong", status=500)
+    
     finally:
         if (cursor != None):
             cursor.close()
@@ -225,3 +320,10 @@ def pop_dict_req(data):
         new_dict[k] = str(v).strip()
 
     return new_dict
+
+#checks json request for allowed keys only
+def allowed_data(data, allowed_keys):
+    for key in list(data.keys()):
+                if key not in allowed_keys:
+                    del data[key]
+    return data

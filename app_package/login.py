@@ -45,7 +45,7 @@ def api_login():
                             usr = cursor.fetchone()
                             login_token = secrets.token_urlsafe(16)
                             
-                            #response data populat dict and add token   
+                            #response data populate dict and add token   
                             resp = pop_dict_query(usr)
                             resp["loginToken"] = login_token
 
@@ -102,7 +102,9 @@ def api_login():
     except mariadb.OperationalError:
         print("Something is wrong with your connection")
         return Response("Something is wrong with the connection", mimetype='text/plain', status=500)
-    
+    except:
+        print("Something went wrong")
+        return Response("Something went wrong", status=500)
     finally:
         if (cursor != None):
             cursor.close()
