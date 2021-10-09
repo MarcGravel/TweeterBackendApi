@@ -46,6 +46,7 @@ def api_follows():
                             all_follows_list.append(user)
 
                         return Response(json.dumps(all_follows_list), mimetype="application/json", status=200)
+                        
                     else: 
                         return Response("user id does not exist", mimetype="text/plain", status=400)
 
@@ -75,7 +76,6 @@ def api_follows():
                         token_valid = cursor.fetchone()[0]
 
                         if token_valid == 1:
-
                             #checks followId exists
                             cursor.execute("SELECT EXISTS(SELECT id from user WHERE id=?)", [follow_id])
                             check_follow_id = cursor.fetchone()[0]
@@ -97,6 +97,7 @@ def api_follows():
                                     cursor.execute("INSERT INTO follows(follower, followed) VALUES(?,?)", [user_id, follow_id])
                                     conn.commit()
                                     return Response(status=204)
+
                                 else:
                                     return Response("This user is already being followed", mimetype="text/plain", status=400)
                             else:
@@ -111,7 +112,54 @@ def api_follows():
                 return Response("Not a valid amount of data sent", mimetype="text/plain", status=400)
 
         elif request.method == 'DELETE':
-            pass
+            data = request.json
+            if len(data.keys()) == 2:
+                if {"loginToken", "followId"} <= data.keys():
+                    token = data.get("loginToken")
+                    follow_id = data.get("followId")
+
+                    #checks followId is positive integer
+                    if str(follow_id).isdigit() == False:
+                        return Response("Not a valid follow id number", mimetype="text/plain", status=400)
+                    
+                    #checks if token valid
+                    if token != None:
+                        #checks if token exists. 
+                        cursor.execute("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+                        token_valid = cursor.fetchone()[0]
+
+                        if token_valid == 1:
+                            #checks followId exists
+                            cursor.execute("SELECT EXISTS(SELECT id from user WHERE id=?)", [follow_id])
+                            check_follow_id = cursor.fetchone()[0]
+
+                            if check_follow_id == 1:
+                                #grabs user_id that matches token 
+                                cursor.execute("SELECT user_id FROM user_session WHERE login_token=?", [token])
+                                user_id = cursor.fetchone()[0]
+
+                                #check follow relationship exists
+                                cursor.execute("SELECT EXISTS(SELECT follower, followed from follows WHERE \
+                                                follower=? AND followed=?)", [user_id, follow_id])
+                                rel_exists = cursor.fetchone()[0]
+
+                                if rel_exists == 1:
+                                    cursor.execute("DELETE FROM follows WHERE follower=? AND followed=?", [user_id, follow_id])
+                                    conn.commit()
+                                    return Response(status=204)
+
+                                else:
+                                    return Response("User not being followed, cannot unfollow", mimetype="text/plain", status=400)
+                            else:
+                                return Response("No user with that id", mimetype="text/plain", status=400)
+                        else:
+                            return Response("Invalid login token", mimetype="text/plain", status=400)
+                    else:
+                        return Response("Invalid login token", mimetype="text/plain", status=400)
+                else:
+                    return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
+            else:
+                return Response("Not a valid amount of data sent", mimetype="text/plain", status=400)
 
         else:
             print("Something went wrong, bad request method")
