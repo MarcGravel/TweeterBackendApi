@@ -301,5 +301,47 @@ JSON Data Sent:
 No data returned
 ```
 
+## Followers: /api/followers
+The followers end point supports GET method.
+
+### GET
+HTTP success code: 200
+
+GET requires a user id to be sent. GET will return information about all users that follow the specified user.
+
+An error will be returned if the userId does not exist or is invalid.  
+  
+Required Data: {"userId"}
+```json
+Example Data:
+
+JSON Params Sent:
+    { 
+      "userId": 3 
+    }
+
+JSON Data Returned: 
+    [
+      { 
+          "userId": 1,
+          "email": "lorax@suess.com",
+          "username": "TheLorax",
+          "bio": "I am the Lorax, I speak for the trees",
+          "birthdate": "1971-06-23",
+          "imageUrl": null,
+          "bannerUrl": "https://i.picsum.photos/id/223/1080/640.jpg?hmac=1zRXJhkXy6EdeYC-WYatZnnmpkqINeYTiJ4-74E6t1o"
+      },
+      { 
+          "userId": 2,
+          "email": "grinch@suess.com",
+          "username": "TheGrinch",
+          "bio": "There will be no holly, jolly, christmas!",
+          "birthdate": "1988-04-07",
+          "imageUrl": "https://unsplash.com/photos/DCVMd_NOpro/download?force=true&w=640",
+          "bannerUrl": "https://i.picsum.photos/id/223/1080/640.jpg?hmac=1zRXJhkXy6EdeYC-WYatZnnmpkqINeYTiJ4-74E6t1o"
+      },
+    ]
+```
+
 ## Contributing
 No Contributions
