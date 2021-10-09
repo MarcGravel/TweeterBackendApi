@@ -69,7 +69,7 @@ def api_users():
         elif request.method == 'POST':
             data = request.json
             
-            if len(data.keys()) == 5 or len(data.keys()) == 6 or len(data.keys()) == 7: 
+            if len(data.keys()) >= 5 and len(data.keys()) <= 7: 
                 if {"email", "username", "password", "bio", "birthdate"} <= data.keys() or \
                         {"email", "username", "password", "bio", "birthdate", "imageUrl"} <= data.keys() or \
                             {"email", "username", "password", "bio", "birthdate", "bannerUrl"} <= data.keys() or \
@@ -260,7 +260,40 @@ def api_users():
                 return Response("A login token is required", mimetype="text/plain", status=400)
 
         elif request.method == 'DELETE':
-            pass
+            data =  request.json
+
+            if len(data.keys()) == 2:
+                #check if proper keys are sent
+                if {"loginToken", "password"} <= data.keys():
+                    token = data.get("loginToken")
+                    password = data.get("password")
+
+                    if token != None:
+                        cursor.execute("SELECT EXISTS(SELECT login_token from user_session WHERE login_token=?)", [token])
+                        token_valid = cursor.fetchone()[0]
+
+                        if token_valid == 1:
+                            #checks if user assigned to token has matching password (also grabs id for easy dlete if future checks pass)
+                            cursor.execute("SELECT login_token, password, u.id FROM user u INNER JOIN user_session s ON u.id = s.user_id WHERE login_token=?", [token])
+                            compare_tbl = cursor.fetchone()
+                            
+                            #checks password in returned tuple with password sent by client
+                            if password == compare_tbl[1]:
+                                cursor.execute("DELETE FROM user WHERE id=?", [compare_tbl[2]])
+                                conn.commit()
+                                return Response(status=204)
+                            else:
+                                return Response("Credentials do not match, can't delete", mimetype="text/plain", status=400)
+                        
+                        else:
+                            print("Token does not exist in db")
+                            return Response("Invalid Login Token", mimetype="text/plain", status=400)
+                    
+                else:
+                    return Response("Invalid Json Data. Check keys", mimetype="text/plain", status=400)
+            
+            else:
+                return Response("Invalid amount of data", mimetype="text/plain", status=400)
 
         else:
             print("Something went wrong, bad request method")

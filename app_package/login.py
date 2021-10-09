@@ -2,9 +2,9 @@ from app_package import app
 from flask import Flask, request, Response
 import mariadb
 import dbcreds
-import secrets
+import secrets #package to create session token strings
 import json
-import re
+import re #re provides support for regular expressions
 
 @app.route('/api/login', methods=['POST', 'DELETE'])
 def api_login():
