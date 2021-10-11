@@ -58,7 +58,7 @@ def api_users():
 
                         return Response(json.dumps(resp), mimetype="application/json", status=200)
                     else:
-                        return Response("user id does not exist", mimetype="text/plain", status=400)
+                        return Response("User id does not exist", mimetype="text/plain", status=400)
                 else:
                     print("Incorrect data submitted. Check key")
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)

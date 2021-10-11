@@ -6,7 +6,6 @@ import mariadb
 import dbcreds
 import secrets #package to create session token strings
 import json
-import re #re provides support for regular expressions
 
 @app.route('/api/login', methods=['POST', 'DELETE'])
 def api_login():
