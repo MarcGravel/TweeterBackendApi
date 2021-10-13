@@ -132,13 +132,13 @@ def api_users():
             user_id = cursor.fetchone()[0]
 
             #checks if client sent info for image or banner url, checks validity of url links then updates.
-            if new_user["imageUrl"] != "None":
-                if not validators.url(new_user["imageUrl"]): 
+            if "imageUrl" in new_user:
+                if validators.url(new_user["imageUrl"]) and len(new_user["imageUrl"]) <= 200:
                     cursor.execute("UPDATE user SET image_url=? WHERE id=?", [new_user["imageUrl"], user_id])
                     conn.commit()
                 
-            if new_user["bannerUrl"] != "None":
-                if not validators.url(new_user["bannerUrl"]):
+            if "bannerUrl" in new_user:
+                if validators.url(new_user["bannerUrl"]) and len(new_user["bannerUrl"]) <= 200:
                     cursor.execute("UPDATE user SET banner_url=? WHERE id=?", [new_user["bannerUrl"], user_id])
                     conn.commit()
 
@@ -229,20 +229,17 @@ def api_users():
 
                     #checks if urls are valid format
                     if "imageUrl" in upd_user:
-                        if not validators.url(upd_user["imageUrl"]):
-                            return Response("Not a valid Url for image", mimetype="text/plain", status=400)
-                        
-                        #runs update query if imageUrl check passes
-                        cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET image_url=? WHERE login_token=?", [upd_user["imageUrl"], token])
-                        conn.commit()
+                        print(len(upd_user["imageUrl"]))
+                        if validators.url(upd_user["imageUrl"]) and len(upd_user["imageUrl"]) <= 200:
+                            #runs update query if imageUrl check passes
+                            cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET image_url=? WHERE login_token=?", [upd_user["imageUrl"], token])
+                            conn.commit()
 
                     if "bannerUrl" in upd_user:
-                        if not validators.url(upd_user["bannerUrl"]):
-                            return Response("Not a valid Url for banner", mimetype="text/plain", status=400)
-
-                        #runs update query if bannerUrl check passes
-                        cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET banner_url=? WHERE login_token=?", [upd_user["bannerUrl"], token])
-                        conn.commit()
+                        if validators.url(upd_user["bannerUrl"]) and len(upd_user["bannerUrl"]) <= 200:
+                            #runs update query if bannerUrl check passes
+                            cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET banner_url=? WHERE login_token=?", [upd_user["bannerUrl"], token])
+                            conn.commit()
                     
                     #get updated user info
                     cursor.execute("SELECT u.id, email, username, bio, birthdate, image_url, banner_url FROM user u INNER JOIN user_session s ON u.id = s.user_id WHERE login_token=?", [token])
