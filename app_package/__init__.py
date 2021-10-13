@@ -10,3 +10,4 @@ from app_package import login
 from app_package import follows
 from app_package import followers
 from app_package import tweets
+from app_package import tweetLikes

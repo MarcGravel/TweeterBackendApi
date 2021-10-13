@@ -1,8 +1,5 @@
 from datetime import datetime
-
 import validators
-from werkzeug.datastructures import MIMEAccept
-from werkzeug.wrappers import response
 from app_package import app
 from app_package.users import allowed_data, pop_dict_req, check_length
 import dbcreds
@@ -265,7 +262,9 @@ def api_tweets():
     except mariadb.OperationalError:
         print("Something is wrong with your connection")
         return Response("Something is wrong with the connection", mimetype='text/plain', status=500)
-
+    except:
+        print("Something went wrong")
+        return Response("Something went wrong", status=500)
     
     finally:
         if (cursor != None):
@@ -276,8 +275,8 @@ def api_tweets():
 
 #populates a tweet dict FROM SQL QUERY tuples or lists
 def pop_dict_tweet(data):
-    user = {
-        "tweetid": data[0],
+    tweet = {
+        "tweetId": data[0],
         "userId": data[1],
         "username": data[2],
         "content": data[3],
@@ -285,5 +284,5 @@ def pop_dict_tweet(data):
         "userImageUrl": data[5],
         "tweetImageUrl": data[6] 
     }
-    return user
+    return tweet
 
