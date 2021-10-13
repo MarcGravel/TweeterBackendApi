@@ -159,7 +159,7 @@ def api_users():
             token = data.get("loginToken")
 
             if token != None:
-                cursor.execute("SELECT EXISTS(SELECT login_token from user_session WHERE login_token=?)", [token])
+                cursor.execute("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
                 token_valid = cursor.fetchone()[0]
                 
                 if token_valid == 1:
@@ -226,7 +226,6 @@ def api_users():
 
                     #checks if urls are valid format
                     if "imageUrl" in upd_user:
-                        print(len(upd_user["imageUrl"]))
                         if validators.url(upd_user["imageUrl"]) and len(upd_user["imageUrl"]) <= 200:
                             #runs update query if imageUrl check passes
                             cursor.execute("UPDATE user u INNER JOIN user_session s ON u.id = s.user_id SET image_url=? WHERE login_token=?", [upd_user["imageUrl"], token])
@@ -247,7 +246,6 @@ def api_users():
                 
                 else:
                     return Response("Invalid Login Token", mimetype="text/plain", status=400)
-
             else:
                 return Response("A login token is required", mimetype="text/plain", status=400)
 

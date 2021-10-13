@@ -4,7 +4,7 @@ import validators
 from werkzeug.datastructures import MIMEAccept
 from werkzeug.wrappers import response
 from app_package import app
-from app_package.users import pop_dict_req, check_length
+from app_package.users import allowed_data, pop_dict_req, check_length
 import dbcreds
 import mariadb
 from flask import Flask, request, Response
@@ -145,12 +145,84 @@ def api_tweets():
             return Response(json.dumps(resp, default=str), mimetype="application/json", status=201)
 
         elif request.method == 'PATCH':
-            data = request.data
-            pass
+            data = request.json
+            token = data.get("loginToken")
+            tweetId = data.get("tweetId")
+
+            #checks tweetId is positive integer
+            if str(tweetId).isdigit() == False:
+                return Response("Not a valid tweet id number", mimetype="text/plain", status=400)
+
+            if token != None:
+                cursor.execute("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+                token_valid = cursor.fetchone()[0]
+
+                if token_valid == 1:
+                    #check tweet id exists in db
+                    cursor.execute("SELECT EXISTS(SELECT id FROM tweet WHERE id=?)", [tweetId])
+                    tweet_id_valid = cursor.fetchone()[0]
+
+                    if tweet_id_valid == 1:
+                        #checks that login token matches user of tweet
+                        cursor.execute("SELECT t.id FROM user_session u INNER JOIN \
+                                        tweet t ON u.user_id = t.user_id WHERE login_token=?", [token])
+                        valid_match_tpl = cursor.fetchall()
+                        match_list = []
+                        
+                        #extract tweetIds from tuples and check if any match
+                        for v in valid_match_tpl:
+                            value = v[0]
+                            match_list.append(value)
+
+                        #returns error if tweetid does not belong to same user as login token
+                        if not int(tweetId) in match_list:
+                            return Response("Unauthorized to update this tweet", mimetype="text/plain", status=401)
+                        
+                        #removes any keys that should not exist in request
+                        allowed_keys = {"loginToken", "tweetId", "content", "imageUrl"}
+                        allowed_data(data, allowed_keys)
+
+                        #populates a new dict that handles all leading and trailing whitespaces
+                        upd_tweet = pop_dict_req(data)
+
+                        #check content length
+                        if not check_length(upd_tweet, 1, 140):
+                            return Response("Content must be between 1 and 140 characters", mimetype="text/plain", status=400)
+
+                        #runs update query if content check passes
+                        cursor.execute("UPDATE tweet SET content=? WHERE id=?", [upd_tweet["content"], tweetId])
+                        conn.commit()
+
+                        #checks for imageUrl and validates if required
+                        if "imageUrl" in upd_tweet:
+                            if validators.url(upd_tweet["imageUrl"]) and len(upd_tweet["imageUrl"]) <= 200:
+                                #runs update query if imageUrl check passes
+                                cursor.execute("UPDATE tweet SET tweet_image_url=? WHERE id=?", [upd_tweet["imageUrl"], tweetId])
+                                conn.commit()
+                        
+                        #collect and format response for return
+                        cursor.execute("SELECT id, content, tweet_image_url FROM tweet WHERE id=?", [tweetId])
+                        updated_t = cursor.fetchone()
+
+                        resp = {
+                            "tweetId": updated_t[0],
+                            "content": updated_t[1],
+                            "imageUrl": updated_t[2]
+                        }
+
+                        return Response(json.dumps(resp), mimetype="application/json", status=200)
+
+                    else:
+                        return Response("Tweet id does not exist", mimetype="text/plain", status=400)
+                else:
+                    return Response("Invalid Login Token", mimetype="text/plain", status=400)
+            else:
+                return Response("A login token is required", mimetype="text/plain", status=400)
+
         elif request.method == 'DELETE':
             data = request.data
             pass
-        
+
         else:
             print("Something went wrong, bad request method")
             return Response("Method Not Allowed", mimetype='text/plain', status=405)
@@ -161,7 +233,7 @@ def api_tweets():
     except mariadb.OperationalError:
         print("Something is wrong with your connection")
         return Response("Something is wrong with the connection", mimetype='text/plain', status=500)
-   
+
     
     finally:
         if (cursor != None):
