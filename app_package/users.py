@@ -60,10 +60,8 @@ def api_users():
                     else:
                         return Response("User id does not exist", mimetype="text/plain", status=400)
                 else:
-                    print("Incorrect data submitted. Check key")
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
             else:
-                print("Too much JSON data submitted")
                 return Response("Too much data submitted", mimetype='text/plain', status=400)
 
         elif request.method == 'POST':
@@ -79,7 +77,6 @@ def api_users():
                         new_user = pop_dict_req(data)   
                         
                 else: 
-                    print("Incorrect data submitted. Check keys")
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
             else: 
                 return Response("Not a valid amount of data sent", mimetype="text/plain", status=400)
@@ -249,11 +246,9 @@ def api_users():
                     return Response(json.dumps(resp), mimetype="application/json", status=200)
                 
                 else:
-                    print("Token does not exist in db")
                     return Response("Invalid Login Token", mimetype="text/plain", status=400)
 
             else:
-                print("No login token") 
                 return Response("A login token is required", mimetype="text/plain", status=400)
 
         elif request.method == 'DELETE':
@@ -283,16 +278,13 @@ def api_users():
                                 return Response("Credentials do not match, can't delete", mimetype="text/plain", status=400)
                         
                         else:
-                            print("Token does not exist in db")
                             return Response("Invalid Login Token", mimetype="text/plain", status=400)
                     else: 
                         return Response("Invalid Login Token", mimetype="text/plain", status=400)
                 else:
                     return Response("Invalid Json Data. Check keys", mimetype="text/plain", status=400)
-            
             else:
                 return Response("Invalid amount of data", mimetype="text/plain", status=400)
-
         else:
             print("Something went wrong, bad request method")
             return Response("Method Not Allowed", mimetype='text/plain', status=405)

@@ -49,13 +49,9 @@ def api_follows():
 
                     else: 
                         return Response("User id does not exist", mimetype="text/plain", status=400)
-
                 else:
-                    print("Incorrect data submitted. Check key")
-                    return Response("Incorrect key submitted.", mimetype='text/plain', status=400)
-                    
+                    return Response("Incorrect key submitted.", mimetype='text/plain', status=400)                  
             else:
-                print("Did not send correct amount of data")
                 return Response("Incorrect amount of data sent", mimetype="text/plain", status=400)
 
         elif request.method == 'POST':
@@ -160,7 +156,6 @@ def api_follows():
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
             else:
                 return Response("Not a valid amount of data sent", mimetype="text/plain", status=400)
-
         else:
             print("Something went wrong, bad request method")
             return Response("Method Not Allowed", mimetype='text/plain', status=405)

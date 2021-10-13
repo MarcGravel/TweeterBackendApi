@@ -69,7 +69,6 @@ def api_tweets():
                     else:
                         return Response("User id does not exist", mimetype="text/plain", status=400)
             else:
-                print("Too much JSON data submitted")
                 return Response("Too much data submitted", mimetype='text/plain', status=400)
 
         elif request.method == 'POST':
@@ -81,7 +80,6 @@ def api_tweets():
                     #populates a new dict with removed leading and trailing whitespaces
                     new_tweet = pop_dict_req(data)
                 else:
-                    print("Incorrect data submitted. Check keys")
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
             
             #checks if correct amount of keys for requests
@@ -90,7 +88,6 @@ def api_tweets():
                     #populates a new dict with removed leading and trailing whitespaces
                     new_tweet = pop_dict_req(data)
                 else:
-                    print("Incorrect data submitted. Check keys")
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
             else: 
                 return Response("Not a valid amount of data sent", mimetype="text/plain", status=400)
@@ -153,6 +150,7 @@ def api_tweets():
         elif request.method == 'DELETE':
             data = request.data
             pass
+        
         else:
             print("Something went wrong, bad request method")
             return Response("Method Not Allowed", mimetype='text/plain', status=405)

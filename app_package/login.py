@@ -55,6 +55,7 @@ def api_login():
                             conn.commit()
 
                             return Response(json.dumps(resp), mimetype="application/json", status=201)
+
                         else:
                             return Response("Invalid credentials.", mimetype='text/plain', status=400)
                     else:
@@ -92,13 +93,9 @@ def api_login():
                             return Response("Invalid credentials.", mimetype='text/plain', status=400)
                     else:
                         return Response("Username does not exist in database", mimetype="text/plain", status=400)
-
                 else:
-                    print("Incorrect data submitted. Check key")
                     return Response("Incorrect keys submitted.", mimetype='text/plain', status=400)
-
             else:
-                print("Not valid amount of arguments")
                 return Response("Error, Expected 2 arguments", mimetype='text/plain', status=400)    
 
         elif request.method == "DELETE":
@@ -121,10 +118,8 @@ def api_login():
                     else:
                         return Response("Token is not valid", mimetype="text/plain", status=400)
                 else:
-                    print("Incorrect Json key value")
                     return Response("Incorrect Json key, login token required", mimetype='text/plain', status=400) 
             else:
-                print("Incorrect Json data amount")
                 return Response("Incorrect Json Data", mimetype='text/plain', status=400)
 
         else:
