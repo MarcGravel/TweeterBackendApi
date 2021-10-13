@@ -147,10 +147,10 @@ def api_tweets():
         elif request.method == 'PATCH':
             data = request.json
             token = data.get("loginToken")
-            tweetId = data.get("tweetId")
+            tweet_id = data.get("tweetId")
 
             #checks tweetId is positive integer
-            if str(tweetId).isdigit() == False:
+            if str(tweet_id).isdigit() == False:
                 return Response("Not a valid tweet id number", mimetype="text/plain", status=400)
 
             if token != None:
@@ -159,23 +159,17 @@ def api_tweets():
 
                 if token_valid == 1:
                     #check tweet id exists in db
-                    cursor.execute("SELECT EXISTS(SELECT id FROM tweet WHERE id=?)", [tweetId])
+                    cursor.execute("SELECT EXISTS(SELECT id FROM tweet WHERE id=?)", [tweet_id])
                     tweet_id_valid = cursor.fetchone()[0]
 
                     if tweet_id_valid == 1:
-                        #checks that login token matches user of tweet
-                        cursor.execute("SELECT t.id FROM user_session u INNER JOIN \
-                                        tweet t ON u.user_id = t.user_id WHERE login_token=?", [token])
-                        valid_match_tpl = cursor.fetchall()
-                        match_list = []
+                        #check login token matches user of tweet
+                        cursor.execute("SELECT EXISTS (SELECT t.id FROM user_session u INNER JOIN \
+                                        tweet t ON u.user_id = t.user_id WHERE login_token=? AND t.id=?)", [token, tweet_id])
+                        rel_exists = cursor.fetchone()[0]
                         
-                        #extract tweetIds from tuples and check if any match
-                        for v in valid_match_tpl:
-                            value = v[0]
-                            match_list.append(value)
-
-                        #returns error if tweetid does not belong to same user as login token
-                        if not int(tweetId) in match_list:
+                        #if no relationship exists, send error
+                        if rel_exists == 0:
                             return Response("Unauthorized to update this tweet", mimetype="text/plain", status=401)
                         
                         #removes any keys that should not exist in request
@@ -190,18 +184,18 @@ def api_tweets():
                             return Response("Content must be between 1 and 140 characters", mimetype="text/plain", status=400)
 
                         #runs update query if content check passes
-                        cursor.execute("UPDATE tweet SET content=? WHERE id=?", [upd_tweet["content"], tweetId])
+                        cursor.execute("UPDATE tweet SET content=? WHERE id=?", [upd_tweet["content"], tweet_id])
                         conn.commit()
 
                         #checks for imageUrl and validates if required
                         if "imageUrl" in upd_tweet:
                             if validators.url(upd_tweet["imageUrl"]) and len(upd_tweet["imageUrl"]) <= 200:
                                 #runs update query if imageUrl check passes
-                                cursor.execute("UPDATE tweet SET tweet_image_url=? WHERE id=?", [upd_tweet["imageUrl"], tweetId])
+                                cursor.execute("UPDATE tweet SET tweet_image_url=? WHERE id=?", [upd_tweet["imageUrl"], tweet_id])
                                 conn.commit()
                         
                         #collect and format response for return
-                        cursor.execute("SELECT id, content, tweet_image_url FROM tweet WHERE id=?", [tweetId])
+                        cursor.execute("SELECT id, content, tweet_image_url FROM tweet WHERE id=?", [tweet_id])
                         updated_t = cursor.fetchone()
 
                         resp = {
@@ -220,9 +214,47 @@ def api_tweets():
                 return Response("A login token is required", mimetype="text/plain", status=400)
 
         elif request.method == 'DELETE':
-            data = request.data
-            pass
+            data = request.json
+            tweet_id = data.get("tweetId")
+            token = data.get("loginToken")
+            
+            if len(data.keys()) == 2 and {"loginToken", "tweetId"} <= data.keys():
+                #checks tweetId is positive integer
+                if str(tweet_id).isdigit() == False:
+                    return Response("Not a valid follow id number", mimetype="text/plain", status=400)
+                
+                #checks if token valid
+                if token != None:
+                    #checks if token exists. 
+                    cursor.execute("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+                    token_valid = cursor.fetchone()[0]
 
+                    if token_valid == 1:
+                        #checks tweetId exists
+                        cursor.execute("SELECT EXISTS(SELECT id from tweet WHERE id=?)", [tweet_id])
+                        check_tweet_id = cursor.fetchone()[0]
+
+                        if check_tweet_id == 1:
+                            #check login token matches user of tweet
+                            cursor.execute("SELECT EXISTS (SELECT t.id FROM user_session u INNER JOIN \
+                                            tweet t ON u.user_id = t.user_id WHERE login_token=? AND t.id=?)", [token, tweet_id])
+                            rel_exists = cursor.fetchone()[0]
+                            
+                            if rel_exists == 1:
+                                cursor.execute("DELETE FROM tweet WHERE id=?", [tweet_id])
+                                conn.commit()
+                                return Response(status=204)
+
+                            else:
+                                return Response("Unauthorized to delete this tweet", mimetype="text/plain", status=401)
+                        else:
+                            return Response("Invalid tweet id", mimetype="text/plain", status=400)
+                    else:
+                        return Response("Invalid login token", mimetype="text/plain", status=400)
+                else:
+                    return Response("Invalid login token", mimetype="text/plain", status=400)
+            else:
+                return Response("Invalid Json data", mimetype="text/plain", status=400)
         else:
             print("Something went wrong, bad request method")
             return Response("Method Not Allowed", mimetype='text/plain', status=405)
@@ -254,3 +286,4 @@ def pop_dict_tweet(data):
         "tweetImageUrl": data[6] 
     }
     return user
+
