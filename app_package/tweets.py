@@ -24,7 +24,7 @@ def api_tweets():
             
             # checks length of json dict (2 different requests are accepted), if values do not match correct amount, returns error message
             if len(params.keys()) == 0:
-                cursor.execute("SELECT t.id, user_id, username, content, created_at, user_image_url, tweet_image_url FROM tweet t \
+                cursor.execute("SELECT t.id, user_id, username, content, created_at, image_url, tweet_image_url FROM tweet t \
                                 INNER JOIN user u ON t.user_id = u.id")
                 all_tweets = cursor.fetchall()
                 all_tweets_list = []
@@ -36,7 +36,7 @@ def api_tweets():
 
                 # default=str in json.dumps handles the date object and sends as string
                 # due to date obj not being serializable.
-                return Response(json.dumps(all_tweets_list, default=str), mimetype="application/json", status=201)
+                return Response(json.dumps(all_tweets_list, default=str), mimetype="application/json", status=200)
 
             #if client sends over a userid param. checks proper key amount and then key name    
             elif len(params.keys()) == 1:
@@ -52,7 +52,7 @@ def api_tweets():
                     check_id_valid = cursor.fetchone()[0]
 
                     if check_id_valid == 1:
-                        cursor.execute("SELECT t.id, user_id, username, content, created_at, user_image_url, tweet_image_url FROM tweet t \
+                        cursor.execute("SELECT t.id, user_id, username, content, created_at, image_url, tweet_image_url FROM tweet t \
                                 INNER JOIN user u ON t.user_id = u.id WHERE u.id=?", [param_id])
                         user_tweets = cursor.fetchall()
                         all_tweets_list = []
@@ -62,9 +62,33 @@ def api_tweets():
                             tweet = pop_dict_tweet(u)
                             all_tweets_list.append(tweet)
 
-                        return Response(json.dumps(all_tweets_list, default=str), mimetype="application/json", status=201)
+                        return Response(json.dumps(all_tweets_list, default=str), mimetype="application/json", status=200)
                     else:
                         return Response("User id does not exist", mimetype="text/plain", status=400)
+                
+                #if client sends over a tweetid param. checks key name
+                elif {"tweetId"} <= params.keys():
+                    param_id = params.get("tweetId")
+
+                    #checks if valid positive integer 
+                    if param_id.isdigit() == False:
+                        return Response("Not a valid id number", mimetype="text/plain", status=400)
+                    
+                    #checks if param id exists as a user id
+                    cursor.execute("SELECT EXISTS(SELECT * FROM tweet where id=?)", [param_id])
+                    check_id_valid = cursor.fetchone()[0]
+
+                    if check_id_valid == 1:
+                        cursor.execute("SELECT t.id, user_id, username, content, created_at, image_url, tweet_image_url FROM tweet t \
+                                        INNER JOIN user u ON t.user_id = u.id WHERE t.id=?", [param_id])
+                        selected_tweet = cursor.fetchone()
+                        resp_tweet = pop_dict_tweet(selected_tweet)
+                        return Response(json.dumps(resp_tweet, default=str), mimetype="application/json", status=200)
+
+                    else: 
+                        return Response("Tweet id does not exist", mimetype="text/plain", status=400)
+                else:
+                    return Response("Incorrect json data sent", mimetype="text/plain", status=400)
             else:
                 return Response("Too much data submitted", mimetype='text/plain', status=400)
 

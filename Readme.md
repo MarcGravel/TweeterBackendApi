@@ -84,7 +84,7 @@ No Data Returned
 ```
 
 ## Users: /api/users
-The users end point supports GET, POST, PATCH and DELETE methods.
+The users end point supports GET, POST, PATCH, and DELETE methods.
 
 ### GET
 HTTP success code: 200
@@ -219,7 +219,7 @@ No Data Returned
 ```
 
 ## Follows: /api/follows
-The follows end point supports GET, POST and DELETE methods.
+The follows end point supports GET, POST, and DELETE methods.
 
 ### GET
 HTTP success code: 200
@@ -339,6 +339,50 @@ JSON Data Returned:
           "birthdate": "1988-04-07",
           "imageUrl": "https://unsplash.com/photos/DCVMd_NOpro/download?force=true&w=640",
           "bannerUrl": "https://i.picsum.photos/id/223/1080/640.jpg?hmac=1zRXJhkXy6EdeYC-WYatZnnmpkqINeYTiJ4-74E6t1o"
+      },
+    ]
+```
+
+## Tweets: /api/tweets
+The tweets end point supports GET, POST, PATCH, DELETE methods.
+
+### GET
+HTTP success code: 200
+
+GET will send all tweets data OR only a specific tweet data.
+
+For all tweets, make a request with no params. If you want a specific tweets data, send the tweet id. And if you want all tweets from a specific user, send the user id.
+
+An error will be returned if any userId or tweetId does not exist.
+
+Required Data: None OR {"userId"} OR {"tweetId"} 
+```json
+Example Data:
+
+JSON Params Sent:
+    { 
+      "userId": 1 
+    }
+
+JSON Data Returned: 
+    [
+      { 
+          "tweetId": 1,
+          "userId": 1,
+          "username": "TheLorax",
+          "content": "Stop cutting down my trees!",
+          "createdAt": "2020-06-11",
+          "userImageUrl": "https://unsplash.com/photos/DCVMd_NOpro/download?force=true&w=640",
+          "tweetImageUrl": "https://i.picsum.photos/id/223/1080/640.jpg?hmac=1zRXJhkXy6EdeYC-WYatZnnmpkqINeYTiJ4-74E6t1o"
+      },
+      { 
+          "tweetId": 2,
+          "userId": 1,
+          "username": "TheLorax",
+          "content": "Cut it off! Leave my trees alone!",
+          "createdAt": "2020-06-13",
+          "userImageUrl": "https://unsplash.com/photos/DCVMd_NOpro/download?force=true&w=640",
+          "tweetImageUrl": "https://i.picsum.photos/id/223/1080/640.jpg?hmac=1zRXJhkXy6EdeYC-WYatZnnmpkqINeYTiJ4-74E6t1o"
       },
     ]
 ```
