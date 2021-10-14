@@ -242,7 +242,7 @@ def api_tweets():
             if len(data.keys()) == 2 and {"loginToken", "tweetId"} <= data.keys():
                 #checks tweetId is positive integer
                 if str(tweet_id).isdigit() == False:
-                    return Response("Not a valid follow id number", mimetype="text/plain", status=400)
+                    return Response("Not a valid tweet id number", mimetype="text/plain", status=400)
                 
                 #checks if token valid
                 if token != None:
@@ -252,7 +252,7 @@ def api_tweets():
 
                     if token_valid == 1:
                         #checks tweetId exists
-                        cursor.execute("SELECT EXISTS(SELECT id from tweet WHERE id=?)", [tweet_id])
+                        cursor.execute("SELECT EXISTS(SELECT id FROM tweet WHERE id=?)", [tweet_id])
                         check_tweet_id = cursor.fetchone()[0]
 
                         if check_tweet_id == 1:
