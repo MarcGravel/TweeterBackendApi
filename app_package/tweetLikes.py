@@ -114,7 +114,57 @@ def api_tweet_likes():
 
         elif request.method == 'DELETE':
             data = request.json
-            pass
+            token = data.get("loginToken")
+            tweet_id = data.get("tweetId")
+
+            #checks correct keys sent
+            if len(data.keys()) == 2 and {"loginToken", "tweetId"} <= data.keys():
+                
+                #checks tweetId is positive integer
+                if str(tweet_id).isdigit() == False:
+                    return Response("Not a valid tweet id number", mimetype="text/plain", status=400)
+                
+                #checks if token valid
+                if token != None:
+                    #checks if token exists. 
+                    cursor.execute("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+                    token_valid = cursor.fetchone()[0]
+
+                    if token_valid == 1:
+                        #checks tweetId exists
+                        cursor.execute("SELECT EXISTS(SELECT id FROM tweet WHERE id=?)", [tweet_id])
+                        check_tweet_id = cursor.fetchone()[0]
+
+                        if check_tweet_id == 1:
+                            #get userId matchinng loginToken
+                            cursor.execute("SELECT user_id FROM user_session WHERE login_token=?", [token])
+                            user_id = cursor.fetchone()[0]
+
+                            #check that user has already liked current tweet
+                            cursor.execute("SELECT EXISTS(SELECT t.id FROM tweet_like t INNER JOIN user_session u \
+                                            ON t.user_id = u.user_id WHERE t.tweet_id=? AND t.user_id=?)", [tweet_id, user_id])
+                            rel_exists = cursor.fetchone()[0]
+
+                            #if user has liked the tweet:
+                            if rel_exists == 1:
+                                cursor.execute("DELETE FROM tweet_like WHERE tweet_id=? AND user_id=?", [tweet_id, user_id])
+                                conn.commit()
+                                return Response(status=204)
+
+                            #if user has not liked the tweet:
+                            elif rel_exists == 0:
+                                return Response("Cannot delete like, current user has not yet liked", mimetype="text/plain", status=400)
+                            else:
+                                print("error in returning exists bool value in tweetLikes/post") 
+                                return Response("Something went wrong", mimetype="text/plain", status=500)                       
+                        else:
+                            return Response("Invalid tweet id", mimetype="text/plain", status=400)
+                    else:
+                        return Response("Invalid login token", mimetype="text/plain", status=400)
+                else:
+                    return Response("Invalid login token", mimetype="text/plain", status=400)
+            else:
+                return Response("Invalid Json data", mimetype="text/plain", status=400)
 
         else:
             print("Something went wrong, bad request method")
