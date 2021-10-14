@@ -1,4 +1,3 @@
-from werkzeug.datastructures import MIMEAccept
 from app_package import app
 import dbcreds
 import mariadb

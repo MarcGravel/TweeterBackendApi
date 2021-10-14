@@ -475,5 +475,87 @@ JSON Data Sent:
 No data returned
 ```
 
+## Tweet-Likes: /api/tweet-likes
+The tweet-likes end point supports GET, POST, and DELETE methods.
+
+### GET
+HTTP success code: 200
+
+GET will return either all likes or specified likes based on tweet
+
+If you want all likes, send no data
+
+If you want likes specific to a tweet, send the tweetId
+
+An error will be returned if tweetId does not exist.
+
+Required Params: None OR {"tweetId"}
+```json
+Example Data:
+
+JSON Params Sent:
+    { 
+      "tweetId": 1 
+    }
+
+JSON Data Returned: 
+    [
+      { 
+          "tweetId": 1,
+          "userId": 1,
+          "username": "TheLorax"
+      },
+      { 
+          "tweetId": 1,
+          "userId": 2,
+          "username": "TheGrinch"
+      },
+    ]
+```
+
+### POST 
+HTTP success code: 201
+
+POST will create a new like for a specific tweet
+
+Like will be created by user matching loginToken and like will be created for the tweet matching tweetId
+
+An error will be returned if either the loginToken or tweetId are invalid. An error will also be sent if the user has already 'liked' the tweet.
+
+Required Data: {"loginToken", "tweetId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "tweetId": 4
+    }
+
+No Data Returned
+```
+
+### DELETE
+HTTP success code: 204
+
+DELETE will remove the like for a specific tweet
+
+Like will be removed by user matching loginToken and like will be removed on the tweet matching tweetId
+
+An error will be returned if either the loginToken or tweetId are invalid. An error will also be sent if the user has not yet 'liked' the tweet.
+
+Required Data: {"loginToken", "tweetId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "tweetId": "2"
+    }
+
+No JSON Returned
+```
+
 ## Contributing
 No Contributions
