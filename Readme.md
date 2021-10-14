@@ -387,5 +387,88 @@ JSON Data Returned:
     ]
 ```
 
+### POST
+HTTP success code: 201
+
+POST will create a new tweet for current user
+
+Must send valid login token. Tweet will be created for user with matching valid token
+
+Content is required to be sent, with a limit of 140 characters. Optional to send an imageUrl as well.
+
+An error will be returned if the loginToken token invalid, content length invalid, or imageUrl length or url invalid.
+
+Required Data: {"loginToken", "content"} 
+Optional Data: {"imageUrl"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "content": "The Grinch is going to come for Christmas dinner!",
+      "imageUrl": "https://unsplash.com/photos/DCVMd_NOpro/download?force=true&w=640"
+    }
+
+JSON Data Returned
+    {
+      "tweetId": 5,
+      "userId": 3,
+      "username": "CindyLou",
+      "userImageUrl": "https://unsplash.com/photos/DCVMd_NOpro/download?force=true&w=640",
+      "content": "The Grinch is going to come for Christmas dinner!",
+      "createdAt": "2020-04-15",
+      "imageUrl": "https://unsplash.com/photos/DCVMd_NOpro/download?force=true&w=640"
+    }
+```
+
+### PATCH
+HTTP success code: 200
+
+PATCH will update the tweet
+
+The login token must match the same user that the tweet belongs to.
+
+An error will be returned if the loginToken and tweetId combo are not valid (the user does not own that tweet or that tweet does not exist).
+
+Required Data: {"loginToken", "tweetId"}
+```json
+Example Data: 
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "tweetId": 2,
+      "content": "FOR REAL! Cut it off! Leave my trees alone!"
+    }
+
+JSON Data Returned: 
+    { 
+      "tweetId": 2,
+      "content": "FOR REAL! Cut it off! Leave my trees alone!"
+    }
+```
+
+### DELETE
+HTTP success code: 204
+
+DELETE will delete the tweet
+
+The login token must match the same user that the tweet belongs to.
+
+An error will be returned if the loginToken and tweetId combo are not valid (the user does not own that tweet or that tweet does not exist).
+```json
+Example Data: 
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "tweetId": "2"
+
+    }
+
+No data returned
+```
+
 ## Contributing
 No Contributions
