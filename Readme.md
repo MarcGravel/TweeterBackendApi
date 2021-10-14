@@ -129,7 +129,8 @@ When sending valid data about user, you are sent back conformation information a
 
 An error will be returned if a username or email already exists.  
   
-Required Data: {"email", "username", "password", "bio", "birthdate"}  
+Required Data: {"email", "username", "password", "bio", "birthdate"}
+
 Optional Data: {"imageUrl"} AND/OR {"bannerUrl"}
 ```json
 Example Data:
@@ -173,7 +174,8 @@ Password and user id cannot be updated.
 
 An error will be returned if you try to change the username or email to one that already exists or if you send invalid data.  
   
-Required Data: {"loginToken"}  
+Required Data: {"loginToken"}
+
 Optional Data: Any combination of {"email", "username", "bio", "birthdate", "imageUrl", "bannerUrl"}
 ```json
 Example Data:
@@ -355,7 +357,7 @@ For all tweets, make a request with no params. If you want a specific tweets dat
 
 An error will be returned if any userId or tweetId does not exist.
 
-Required Data: None OR {"userId"} OR {"tweetId"} 
+Required params: None OR {"userId"} OR {"tweetId"} 
 ```json
 Example Data:
 
@@ -398,7 +400,8 @@ Content is required to be sent, with a limit of 140 characters. Optional to send
 
 An error will be returned if the loginToken token invalid, content length invalid, or imageUrl length or url invalid.
 
-Required Data: {"loginToken", "content"} 
+Required Data: {"loginToken", "content"}
+
 Optional Data: {"imageUrl"}
 ```json
 Example Data:
@@ -457,6 +460,8 @@ DELETE will delete the tweet
 The login token must match the same user that the tweet belongs to.
 
 An error will be returned if the loginToken and tweetId combo are not valid (the user does not own that tweet or that tweet does not exist).
+
+Required Data: {"loginToken", "tweetId"}
 ```json
 Example Data: 
 
