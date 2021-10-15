@@ -55,7 +55,7 @@ def db_fetchone(query, args):
         print("Something is wrong with your connection")
         return Response("Something is wrong with the connection", mimetype='text/plain', status=500)
     except:
-        print("Something went wrong at")
+        print("Something went wrong")
         return Response("Something went wrong", status=500)
     finally:
         if (cursor != None):
@@ -87,7 +87,7 @@ def db_fetchall(query):
         print("Something is wrong with your connection")
         return Response("Something is wrong with the connection", mimetype='text/plain', status=500)
     except:
-        print("Something went wrong at")
+        print("Something went wrong")
         return Response("Something went wrong", status=500)
     finally:
         if (cursor != None):
@@ -119,7 +119,7 @@ def db_fetchall_args(query, args):
         print("Something is wrong with your connection")
         return Response("Something is wrong with the connection", mimetype='text/plain', status=500)
     except:
-        print("Something went wrong at")
+        print("Something went wrong")
         return Response("Something went wrong", status=500)
     finally:
         if (cursor != None):
@@ -151,7 +151,7 @@ def db_commit(query, args):
         print("Something is wrong with your connection")
         return Response("Something is wrong with the connection", mimetype='text/plain', status=500)
     except:
-        print("Something went wrong at")
+        print("Something went wrong")
         return Response("Something went wrong", status=500)
     finally:
         if (cursor != None):

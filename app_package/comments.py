@@ -96,21 +96,64 @@ def api_comments():
                                     c.tweet_id = t.id WHERE c.tweet_id=? AND c.user_id=? ORDER BY c.id DESC LIMIT 1", [tweet_id, user_id])
             
             #create response obj
-            resp = {
-                "commentId": ret_data[0],
-                "tweetId": ret_data[1],
-                "userId": ret_data[2],
-                "username": ret_data[3],
-                "content": ret_data[4],
-                "createdAt": ret_data[5]
-            }
+            resp = pop_dict_comment(ret_data)
+
             return Response(json.dumps(resp, default=str), mimetype="application/json", status=201) 
 
         else:
             return Response("Not a valid amount of data sent", mimetype="text/plain", status=400)
 
     elif request.method == 'PATCH':
-        pass
+        data = request.json
+        token = data.get("loginToken")
+        comment_id = data.get("commentId")
+        content = data.get("content")
+
+        if len(data.keys()) == 3 and {"loginToken", "commentId", "content"} <= data.keys():
+            #checks commentId is positive integer
+            if str(comment_id).isdigit() == False:
+                return Response("Not a valid comment id number", mimetype="text/plain", status=400)
+
+            if token != None:
+                token_valid = db_index_fetchone("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+
+                if token_valid == 1:
+                    #check comment id exists in db
+                    comment_id_valid = db_index_fetchone("SELECT EXISTS(SELECT id FROM comment WHERE id=?)", [comment_id])
+
+                    if comment_id_valid == 1:
+                        #check the comment belongs to same user as login token
+                        rel_exists = db_index_fetchone("SELECT EXISTS(SELECT c.id FROM comment c INNER JOIN \
+                                                        user_session u ON u.user_id = c.user_id WHERE u.login_token=? \
+                                                        AND c.id=?)", [token, comment_id])
+
+                        if rel_exists == 1:
+                            #clear leading and trailing whitespaces from content
+                            clean_content = str(content).strip()
+                            #check content length
+                            if not check_length(clean_content, 1, 150):
+                                return Response("Content must be between 1 and 150 characters", mimetype="text/plain", status=400)
+                            #run update query if check passes
+                            db_commit("UPDATE comment SET content=? WHERE id=?", [clean_content, comment_id])
+
+                            #collect and format response for return
+                            updated_c = db_fetchone("SELECT c.id, c.tweet_id, c.user_id, u.username, c.content, c.created_at FROM \
+                                                    comment c INNER JOIN user u ON c.user_id = u.id WHERE c.id=?", [comment_id])
+                            
+                            resp = pop_dict_comment(updated_c)
+
+                            return Response(json.dumps(resp, default=str), mimetype="application/json", status=200)
+                        else: 
+                            return Response("Unauthorized to update this comment", mimetype="text/plain", status=401)
+                    else:
+                        return Response("Comment id does not exist", mimetype="text/plain", status=400)
+                else:
+                    return Response("Invalid login token", mimetype="text/plain", status=400)
+            else:
+                return Response("A login token is required", mimetype="text/plain", status=400)
+        else:
+            return Response("Invalid json data sent", mimetype="text/plain", status=400)
+
     elif request.method == 'DELETE':
         pass
     else:
