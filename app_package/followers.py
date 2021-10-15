@@ -1,8 +1,6 @@
 from app_package import app
 from app_package.dataManFunctions import pop_dict_query
-from app_package.queryFunctions import db_fetchall_args, db_index_fetchone, db_fetchone, db_fetchall, db_commit
-import dbcreds
-import mariadb
+from app_package.queryFunctions import db_fetchall_args, db_index_fetchone
 from flask import request, Response
 import json
 
