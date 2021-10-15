@@ -100,11 +100,11 @@ def api_tweets():
         #check token valid
         token = new_tweet["loginToken"]
         if token != None:
-                    #checks if token exists. 
-                    token_valid = db_index_fetchone("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+            #checks if token exists. 
+            token_valid = db_index_fetchone("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
 
-                    if token_valid == 0:
-                        return Response("Not a valid login token", mimetype="text/plain", status=400)
+            if token_valid == 0:
+                return Response("Not a valid login token", mimetype="text/plain", status=400)
         else:
             return Response("Invalid login token", mimetype="text/plain", status=400)
 
@@ -112,7 +112,7 @@ def api_tweets():
         if not check_length(new_tweet["content"], 1, 140):
             return Response("Content must be between 1 and 140 characters", mimetype="text/plain", status=400)
         
-        #create a post timestamp for date only
+        #create a post timestamp for date
         created_date =  datetime.now()
 
         #get userId from token
@@ -129,8 +129,7 @@ def api_tweets():
 
         #get all required return data
         ret_data = db_fetchone("SELECT t.id, u.id, username, u.image_url, content, created_at, tweet_image_url FROM tweet t \
-                        INNER JOIN user u ON t.user_id = u.id WHERE t.user_id=? ORDER BY t.id DESC LIMIT 1", [user_id])  
-        print(ret_data)     
+                        INNER JOIN user u ON t.user_id = u.id WHERE t.user_id=? ORDER BY t.id DESC LIMIT 1", [user_id])     
 
         #create response data obj
         resp = {
