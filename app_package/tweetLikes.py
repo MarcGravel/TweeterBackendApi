@@ -144,4 +144,4 @@ def api_tweet_likes():
 
     else:
         print("Something went wrong, bad request method")
-        return Response("Method Not Allowed", mimetype='text/plain', status=405)
+        return Response("Method Not Allowed", mimetype='text/plain', status=405) 

@@ -247,5 +247,5 @@ def api_tweets():
             return Response("Invalid Json data", mimetype="text/plain", status=400)
     else:
         print("Something went wrong, bad request method")
-        return Response("Method Not Allowed", mimetype='text/plain', status=405)
+        return Response("Method Not Allowed", mimetype='text/plain', status=405) 
 
