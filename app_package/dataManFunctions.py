@@ -65,3 +65,15 @@ def pop_tweet_like(data):
         "username": data[2],
     }
     return like
+
+#populates a comment dict FROM SQL QUERY
+def pop_dict_comment(data):
+    comment = {
+        "commentId": data[0],
+        "tweetId": data[1],
+        "userId": data[2],
+        "username": data[3],
+        "content": data[4],
+        "createdAt": data[5]
+    }
+    return comment
