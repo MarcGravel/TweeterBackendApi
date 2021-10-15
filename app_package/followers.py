@@ -1,5 +1,5 @@
 from app_package import app
-from app_package.users import pop_dict_query
+from app_package.dataManFunctions import pop_dict_query
 import dbcreds
 import mariadb
 from flask import request, Response

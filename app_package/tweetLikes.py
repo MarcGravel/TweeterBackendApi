@@ -1,7 +1,8 @@
 from app_package import app
+from app_package.dataManFunctions import pop_tweet_like
 import dbcreds
 import mariadb
-from flask import Flask, request, Response
+from flask import request, Response
 import json
 
 @app.route('/api/tweet-likes', methods=['GET', 'POST', 'DELETE'])
@@ -185,12 +186,3 @@ def api_tweet_likes():
         if (conn != None):
             conn.rollback()
             conn.close()
-
-#populates a tweet like dict FROM SQL QUERY
-def pop_tweet_like(data):
-    like = {
-        "tweetId": data[0],
-        "userId": data[1],
-        "username": data[2],
-    }
-    return like

@@ -1,10 +1,10 @@
 from datetime import datetime
 import validators
 from app_package import app
-from app_package.users import allowed_data, pop_dict_req, check_length
+from app_package.dataManFunctions import allowed_data, pop_dict_req, check_length, pop_dict_tweet
 import dbcreds
 import mariadb
-from flask import Flask, request, Response
+from flask import request, Response
 import json
 
 @app.route('/api/tweets', methods=['GET', 'POST', 'PATCH', 'DELETE'])
@@ -296,17 +296,4 @@ def api_tweets():
         if (conn != None):
             conn.rollback()
             conn.close()
-
-#populates a tweet dict FROM SQL QUERY tuples or lists
-def pop_dict_tweet(data):
-    tweet = {
-        "tweetId": data[0],
-        "userId": data[1],
-        "username": data[2],
-        "content": data[3],
-        "createdAt": data[4],
-        "userImageUrl": data[5],
-        "tweetImageUrl": data[6] 
-    }
-    return tweet
 
