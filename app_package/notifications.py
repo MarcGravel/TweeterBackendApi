@@ -29,7 +29,7 @@ def api_notifications():
                                                     AND user_id=?)", [token, user_id])
                 if user_is_valid == 1:
                     #list returned as descending to show must recent notifications at the top
-                    all_notifications = db_fetchall_args("SELECT * FROM notification WHERE user_id=? ORDER BY id DESC", [user_id])
+                    all_notifications = db_fetchall_args("SELECT * FROM notification WHERE owner_id=? ORDER BY id DESC", [user_id])
 
                     #return in formatted list
                     all_notes_list = []
@@ -47,6 +47,9 @@ def api_notifications():
             return Response("Invalid json data sent", mimetype="text/plain", status=400)
 
     elif request.method == 'POST':
+        #see below for function to post notification. function needs to be outside request.method 
+        #scope so other modules can access. On post of other requests, a notification post will be
+        #created after successfull db commit.
         pass
     elif request.method == 'PATCH':
         pass
@@ -55,3 +58,30 @@ def api_notifications():
     else:
         print("Something went wrong at notifications request.method")
         return Response("Something went wrong at request.method", mimetype='text/plain', status=500)
+
+#uowners_id is id of user being notified
+#others_id is id of user causing notification
+#notified_id is id of object being notified(id# of tweet or comment)
+#type_of_notify is what is causing notification (a tweet, a follow, a comment, a reply)
+#seen is bool if user has viewed the notification yet, default to false on notify creation        
+def post_notification(owners_id, cur_user_id, type_of_notify, notified_id):
+    args_list = [owners_id, cur_user_id, type_of_notify]
+    if any(arg is None for arg in args_list):
+        print("Unable to create notification, null values exist")
+    else:
+        #default seen row always False
+        isSeen = 0
+
+        if type_of_notify == "like":
+            db_commit("INSERT INTO notification(owner_id, cur_user_id, type_of_notify, seen, tweet_id) \
+                        VALUES(?,?,?,?,?)", [owners_id, cur_user_id, type_of_notify, isSeen, notified_id])
+
+        elif type_of_notify == "follow":
+            db_commit("INSERT INTO notification(owner_id, cur_user_id, type_of_notify, seen) VALUES(?,?,?,?)", \
+                        [owners_id, cur_user_id, type_of_notify, isSeen])
+        elif type_of_notify == "comment":
+            pass
+        elif type_of_notify == "reply":
+            pass
+        else:
+            print("Incorrect notification type tag")

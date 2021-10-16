@@ -1,6 +1,7 @@
 from app_package import app
 from app_package.functions.dataManFunctions import pop_tweet_like
 from app_package.functions.queryFunctions import db_fetchall_args, db_index_fetchone, db_fetchall, db_commit
+from app_package.notifications import post_notification
 from flask import request, Response
 import json
 
@@ -74,6 +75,16 @@ def api_tweet_likes():
                         #if user has not liked the tweet:
                         if rel_exists == 0:
                             db_commit("INSERT INTO tweet_like(tweet_id, user_id) VALUES(?,?)", [tweet_id, user_id])
+
+                            ####create notification
+                            #catch notification POST exceptions to avoid issue posting the tweetLike commit
+                            try: 
+                                #get userid that tweet belongs to
+                                tweet_owner_id = db_index_fetchone("SELECT user_id FROM tweet WHERE id=?", [tweet_id])
+                                post_notification(tweet_owner_id, user_id, tweet_id, "like")                     
+                            except: 
+                                print("Unable to create notification on tweet-likes")
+                            
                             return Response(status=201)
 
                         #if user has already liked the tweet:

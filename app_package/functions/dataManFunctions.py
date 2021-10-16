@@ -91,7 +91,7 @@ def pop_comment_like(data):
 def pop_dict_note(data):
     note = {
         "notificationId": data[0],
-        "userId": data[1],
+        "ownerId": data[1],
         "othersId": data[2],
         "typeOf": data[3],
         "isSeen": data[4],

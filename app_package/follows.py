@@ -1,6 +1,7 @@
 from app_package import app
 from app_package.functions.dataManFunctions import pop_dict_query
 from app_package.functions.queryFunctions import db_index_fetchone, db_commit, db_fetchall_args
+from app_package.notifications import post_notification
 from flask import request, Response
 import json
 
@@ -74,6 +75,15 @@ def api_follows():
                             
                             if check_rel_exists == 0:
                                 db_commit("INSERT INTO follows(follower, followed) VALUES(?,?)", [user_id, follow_id])
+
+                                ####create notification
+                                #catch notification POST exceptions to avoid issue posting the tweetLike commit
+                                try: 
+                                    #get userid that tweet belongs to
+                                    post_notification(follow_id, user_id, "follow", None)                     
+                                except: 
+                                    print("Unable to create notification on follows")
+
                                 return Response(status=204)
 
                             else:
