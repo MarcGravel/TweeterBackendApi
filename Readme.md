@@ -567,7 +567,7 @@ JSON Data Sent:
 No JSON Returned
 ```
 
-## Comments: /api/comments
+## Comments
 The comments end point supports GET, POST, PATCH, and DELETE methods.
 
 ### GET
