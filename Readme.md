@@ -579,11 +579,11 @@ For example, send the tweet id of 2 in params, the API will return all comments 
 
 An error will be returned if the tweetId does not exist.
 
-Required Data: {"tweetId"}
+Required Params: {"tweetId"}
 ```json
 Example Data:
 
-JSON Data Sent:
+JSON Params Sent:
     { 
       "tweetId": 2 
     }
@@ -692,6 +692,92 @@ JSON Data Sent:
     { 
       "loginToken": "LIAbfvh341uNAS314",
       "commentId": "1"
+    }
+
+No JSON Returned
+```
+
+## Comment Likes: /api/comment-likes
+The comment-likes end point supports GET, POST, and DELETE methods.
+
+### GET
+HTTP success code: 200
+
+GET will return either all likes or specified likes based on comment
+
+If you want all likes, send no data
+
+If you want likes specific to a comment, send the commentId
+
+An error will be returned if commentId does not exist.
+
+Required Params: None OR {"commentId"}
+```json
+Example Data:
+
+JSON Params Sent:
+    { 
+      "commentId": 4 
+    }
+
+JSON Data Returned: 
+    [
+      { 
+          "commentId": 4,
+          "userId": 1,
+          "username": "TheLorax"
+      },
+      { 
+          "commentId": 4,
+          "userId": 1,
+          "username": "TheLorax"
+      },
+    ]
+```
+
+### POST
+HTTP success code: 201
+
+POST will create a new like for a specific comment
+
+Like will be created by user matching loginToken and like will be created for the comment matching commentId
+
+An error will be returned if either the loginToken or commentId are invalid. An error will also be sent if the user has already 'liked' the comment.
+
+Required Data: {"loginToken", "commentId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "commentId": 4
+    }
+
+    { 
+        "commentId": 4,
+        "userId": 1,
+        "username": "TheLorax"
+    },
+```
+
+### DELETE
+HTTP success code: 204
+
+DELETE will remove the like for a specific comment
+
+Like will be removed by user matching loginToken and like will be removed on the comment matching commenetId
+
+An error will be returned if either the loginToken or commentId are invalid. An error will also be sent if the user has not yet 'liked' the comment.
+
+Required Data: {"loginToken", "commentId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "commentId": "4"
     }
 
 No JSON Returned
