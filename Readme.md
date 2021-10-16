@@ -22,14 +22,21 @@ Werkzeug==2.0.2
 ```
 # Content
 
-### User Login
-### Users
-### Follows
-### Followers
-### Tweets
-### Tweet Likes
-### Comments
-### Comment Likes
+[User Login](#user-login-apilogin)
+
+[Users](#users-apiusers)
+
+[Follows](#follows-apifollows)
+
+[Followers](#followers-apifollowers)
+
+[Tweets](#tweets-apitweets)
+
+[Tweet Likes](#tweet-likes-apitweet-likes)
+
+[Comments](#comments-1)
+
+[Comment Likes](#comment-likes-apicomment-likes)
 
 # Usage
 
@@ -567,7 +574,7 @@ JSON Data Sent:
 No JSON Returned
 ```
 
-## Comments
+## Comments: /api/comments
 The comments end point supports GET, POST, PATCH, and DELETE methods.
 
 ### GET
