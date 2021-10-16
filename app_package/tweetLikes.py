@@ -1,6 +1,6 @@
 from app_package import app
 from app_package.dataManFunctions import pop_tweet_like
-from app_package.queryFunctions import db_fetchall_args, db_index_fetchone, db_fetchone, db_fetchall, db_commit
+from app_package.queryFunctions import db_fetchall_args, db_index_fetchone, db_fetchall, db_commit
 from flask import request, Response
 import json
 
@@ -8,13 +8,11 @@ import json
 def api_tweet_likes():
     if request.method == 'GET':
         params = request.args
-        print(len(params.keys()))
         
         #checks length of request. 2 lengths accepted. 
         #no data returns all likes
         if len(params.keys()) == 0:
             all_tweet_likes = db_fetchall("SELECT t.tweet_id, u.id, u.username FROM tweet_like t INNER JOIN user u ON t.user_id = u.id")
-            all_likes_list = []
                 #skip next elif/else statments to continue
 
         #id returns all likes of that tweet id
@@ -31,7 +29,6 @@ def api_tweet_likes():
             if check_id_valid == 1:
                 all_tweet_likes = db_fetchall_args("SELECT t.tweet_id, u.id, u.username FROM tweet_like t INNER JOIN user u ON t.user_id = u.id \
                                 WHERE t.tweet_id=?", [tweet_id])
-                all_likes_list = []
                     #skip else statments to continue
             else:
                 return Response("Tweet id does not exist", mimetype="text/plain", status=400)
@@ -39,6 +36,7 @@ def api_tweet_likes():
             return Response("Incorrect Json data sent", mimetype='text/plain', status=400)
         
         # for either request above return all likes in a key formatted dict
+        all_likes_list = []
         for l in all_tweet_likes:
             like = pop_tweet_like(l)
             all_likes_list.append(like)

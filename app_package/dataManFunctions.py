@@ -77,3 +77,12 @@ def pop_dict_comment(data):
         "createdAt": data[5]
     }
     return comment
+
+#populates a comment like dict FROM SQL QUERY
+def pop_comment_like(data):
+    like = {
+        "commentId": data[0],
+        "userId": data[1],
+        "username": data[2],
+    }
+    return like
