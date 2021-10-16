@@ -77,7 +77,7 @@ def api_users():
         #check email exists in db
         check_email_exists = db_index_fetchone("SELECT EXISTS(SELECT email FROM user WHERE email=?)", [new_user["email"]])
 
-        if check_email_exists == 0:
+        if check_email_exists == 1:
             return Response("Email already exists", mimetype="text/plain", status=400)
 
         #check username valid
