@@ -134,5 +134,5 @@ def api_follows():
         else:
             return Response("Not a valid amount of data sent", mimetype="text/plain", status=400)
     else:
-        print("Something went wrong, bad request method")
-        return Response("Method Not Allowed", mimetype='text/plain', status=405)
+        print("Something went wrong at follows request.method")
+        return Response("Something went wrong at request.method", mimetype='text/plain', status=500)

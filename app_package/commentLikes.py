@@ -100,7 +100,7 @@ def api_comment_likes():
                 token_valid = db_index_fetchone("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
 
                 if token_valid == 1:
-                     #checks commentId exists
+                    #checks commentId exists
                     check_comment_id = db_index_fetchone("SELECT EXISTS(SELECT id FROM comment WHERE id=?)", [comment_id])
 
                     if check_comment_id == 1:
@@ -126,5 +126,5 @@ def api_comment_likes():
         else:
             return Response("Invalid json data sent", mimetype="text/plain", status=400)
     else:
-        print("Something went wrong, bad request method")
-        return Response("Method Not Allowed", mimetype='text/plain', status=405)
+        print("Something went wrong at comment-likes request.method")
+        return Response("Something went wrong at request.method", mimetype='text/plain', status=500)

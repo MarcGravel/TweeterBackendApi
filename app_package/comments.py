@@ -184,5 +184,5 @@ def api_comments():
         else:
             return Response("Invalid Json data", mimetype="text/plain", status=400)
     else:
-        print("Something went wrong, bad request method")
-        return Response("Method Not Allowed", mimetype='text/plain', status=405) 
+        print("Something went wrong at comments request.method")
+        return Response("Something went wrong at request.method", mimetype='text/plain', status=500) 
