@@ -1,6 +1,6 @@
 from app_package import app
-from app_package.dataManFunctions import pop_dict_query, pop_dict_req, check_email, check_length, allowed_data
-from app_package.queryFunctions import db_index_fetchone, db_fetchone, db_fetchall, db_commit
+from app_package.functions.dataManFunctions import pop_dict_query, pop_dict_req, check_email, check_length, allowed_data
+from app_package.functions.queryFunctions import db_index_fetchone, db_fetchone, db_fetchall, db_commit
 from flask import request, Response
 import json
 import secrets #package to create session token strings

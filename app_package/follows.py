@@ -1,6 +1,6 @@
 from app_package import app
-from app_package.dataManFunctions import pop_dict_query
-from app_package.queryFunctions import db_index_fetchone, db_commit, db_fetchall_args
+from app_package.functions.dataManFunctions import pop_dict_query
+from app_package.functions.queryFunctions import db_index_fetchone, db_commit, db_fetchall_args
 from flask import request, Response
 import json
 

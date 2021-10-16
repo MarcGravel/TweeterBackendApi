@@ -1,8 +1,8 @@
 from datetime import datetime
 import validators
 from app_package import app
-from app_package.dataManFunctions import allowed_data, pop_dict_req, check_length, pop_dict_tweet
-from app_package.queryFunctions import db_fetchall_args, db_index_fetchone, db_fetchone, db_fetchall, db_commit
+from app_package.functions.dataManFunctions import allowed_data, pop_dict_req, check_length, pop_dict_tweet
+from app_package.functions.queryFunctions import db_fetchall_args, db_index_fetchone, db_fetchone, db_fetchall, db_commit
 from flask import request, Response
 import json
 
