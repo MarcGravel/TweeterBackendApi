@@ -34,7 +34,7 @@ Werkzeug==2.0.2
 
 [Tweet Likes](#tweet-likes-apitweet-likes)
 
-[Comments](#comments-1)
+[Comments](#comments-apicomments)
 
 [Comment Likes](#comment-likes-apicomment-likes)
 
