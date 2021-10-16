@@ -557,5 +557,135 @@ JSON Data Sent:
 No JSON Returned
 ```
 
+## Comments: /api/comments
+The comments end point supports GET, POST, PATCH, and DELETE methods.
+
+### GET
+HTTP success code: 200
+
+GET will return all comments based on tweetId sent.
+
+For example, send the tweet id of 2 in params, the API will return all comments on tweet 2.
+
+An error will be returned if the tweetId does not exist.
+
+Required Data: {"tweetId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "tweetId": 2 
+    }
+
+JSON Data Returned: 
+    [
+      { 
+          "commentId": 1,
+          "tweetId": 2,
+          "userId": 1,
+          "username": "TheLorax",
+          "content": "I agree! Give this guy some money to save trees!",
+          "createdAt": "2020-07-12"
+      },
+      { 
+          "commentId": 2,
+          "tweetId": 2,
+          "userId": 1,
+          "username": "TheLorax",
+          "content": "Why hasn't anyone given money yet?",
+          "createdAt": "2020-07-13"
+      },
+    ]
+```
+
+### POST
+HTTP success code: 201
+
+POST will create a new comment from the current user on a specified tweet.
+
+Login token and tweetId sent will tie the user and the tweet to the comment created.
+
+Data about the comment, user, and tweet will be returned on success.
+
+An error will be returned if the loginToken or tweetId are invalid. 
+
+Comments have a limit of 150 characters.
+
+Required Data: {"loginToken", "tweetId", "content"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "tweetId": 4,
+      "content": "I agree, roast beast is good."
+    }
+
+JSON Data Returned:
+    { 
+        "commentId": 5,
+        "tweetId": 4,
+        "userId": 3,
+        "username": "CindyLou",
+        "content": "I agree, roast beast is good.",
+        "createdAt": "2020-07-13"
+    }
+```
+
+### PATCH
+HTTP success code: 200
+
+PATCH will update a comment if the loginToken is owned by the same user as the comment
+
+Send an object with the loginToken, commentId and content. On success, you will be sent back conformation information about the updated comment.
+
+An error will be returned if content character passes 150 limit or the login token does not own the comment being edited.
+
+Required Data: {"loginToken", "commentId", "content"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "commentId": 5,
+      "content": "I agree, roast beast is great."
+    }
+
+JSON Data Returned: 
+      { 
+        "commentId": 5,
+        "tweetId": 4,
+        "userId": 3,
+        "username": "CindyLou",
+        "content": "I agree, roast beast is great.",
+        "createdAt": "2020-07-13"
+    }
+```
+
+### DELETE
+HTTP success code: 204
+
+DELETE will delete a comment if the loginToken is owned by the same user as the comment.
+
+No data is sent back on a valid delete.
+
+An error will be returned if the loginToken and comment combo are not valid.
+
+Required Data: {"loginToken", "commentId"}
+```json
+Example Data
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "commentId": "1"
+    }
+
+No JSON Returned
+```
+
 ## Contributing
 No Contributions
