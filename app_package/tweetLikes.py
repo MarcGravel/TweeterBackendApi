@@ -113,7 +113,7 @@ def api_tweet_likes():
                     check_tweet_id = db_index_fetchone("SELECT EXISTS(SELECT id FROM tweet WHERE id=?)", [tweet_id])
 
                     if check_tweet_id == 1:
-                        #get userId matchinng loginToken
+                        #get userId matching loginToken
                         user_id = db_index_fetchone("SELECT user_id FROM user_session WHERE login_token=?", [token])
 
                         #check that user has already liked current tweet

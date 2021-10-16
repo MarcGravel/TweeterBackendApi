@@ -43,9 +43,88 @@ def api_comment_likes():
         return Response(json.dumps(all_likes_list), mimetype="application/json", status=200)
 
     elif request.method == 'POST':
-        pass
+        data = request.json
+        token = data.get("loginToken")
+        comment_id = data.get("commentId")
+
+        #check correct keys sent
+        if len(data.keys()) == 2 and {"loginToken", "commentId"} <= data.keys():
+            
+            #checks if token valid
+            if token != None:
+                #checks if token exists. 
+                token_valid = db_index_fetchone("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+
+                if token_valid == 1:
+                    #check commentId exists
+                    check_comment_id = db_index_fetchone("SELECT EXISTS(SELECT id FROM comment WHERE id=?)", [comment_id])
+
+                    if check_comment_id == 1:
+                        #get userId matching token
+                        user_id = db_index_fetchone("SELECT user_id FROM user_session WHERE login_token=?", [token])
+
+                        #check that user has not already like the comment
+                        rel_exists = db_index_fetchone("SELECT EXISTS(SELECT id FROM comment_like WHERE comment_id=? \
+                                                        AND user_id=?)", [comment_id, user_id])
+
+                        if rel_exists == 0:
+                            db_commit("INSERT INTO comment_like(comment_id, user_id) VALUES(?,?)", [comment_id, user_id])
+                            return Response(status=201)
+
+                        else:
+                            return Response("Cannot like comment, current user has already liked it", mimetype="text/plain", status=400)
+                    else:
+                        return Response("Invalid comment id", mimetype="text/plain", status=400)
+                else:
+                    return Response("Invalid login token", mimetype="text/plain", status=400)
+            else:
+                return Response("Invalid login token", mimetype="text/plain", status=400)
+        else:
+            return Response("Invalid Json data", mimetype="text/plain", status=400)
+
     elif request.method == 'DELETE':
-        pass
+        data = request.json
+        token = data.get("loginToken")
+        comment_id = data.get("commentId")
+
+        #check correct keys sent
+        if len(data.keys()) == 2 and {"loginToken", "commentId"} <= data.keys():
+            
+            #check tweetId is positive integer
+            if str(comment_id).isdigit() == False:
+                return Response("Not a valid tweet id number", mimetype="text/plain", status=400)
+            
+            #check token valid
+            if token != None:
+                #checks if token exists. 
+                token_valid = db_index_fetchone("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+
+                if token_valid == 1:
+                     #checks commentId exists
+                    check_comment_id = db_index_fetchone("SELECT EXISTS(SELECT id FROM comment WHERE id=?)", [comment_id])
+
+                    if check_comment_id == 1:
+                        #get userId matchng loginToken
+                        user_id = db_index_fetchone("SELECT user_id FROM user_session WHERE login_token=?", [token])
+
+                        #check that user has already like current comment
+                        rel_exists = db_index_fetchone("SELECT EXISTS(SELECT id FROM comment_like WHERE comment_id=? \
+                                                        AND user_id=?)", [comment_id, user_id])
+                        
+                        #if user has liked comment
+                        if rel_exists == 1:
+                            db_commit("DELETE FROM comment_like WHERE comment_id=? AND user_id=?", [comment_id, user_id])
+                            return Response(status=204)
+                        else:
+                            return Response("Cannot delete like, current user has not yet liked", mimetype="text/plain", status=400)
+                    else:
+                        return Response("Invalid comment id", mimetype="text/plain", status=400)
+                else:
+                    return Response("Invalid login token", mimetype="text/plain", status=400)
+            else:
+                return Response("Invalid login token", mimetype="text/plain", status=400)
+        else:
+            return Response("Invalid json data sent", mimetype="text/plain", status=400)
     else:
         print("Something went wrong, bad request method")
         return Response("Method Not Allowed", mimetype='text/plain', status=405)
