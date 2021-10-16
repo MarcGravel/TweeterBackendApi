@@ -2,7 +2,7 @@ import sys
 from app_package import app
 
 #This file is entry point of app
-#see endpoints/__init__ for flask and app initialization
+#see endpoints/__init__ for flask and app initialization.
 
 # checks arguments on run for testing or development.
 #bjoern server only runs on development 
