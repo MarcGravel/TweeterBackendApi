@@ -64,7 +64,7 @@ def api_notifications():
 #notified_id is id of object being notified(id# of tweet or comment)
 #type_of_notify is what is causing notification (a tweet, a follow, a comment, a reply)
 #seen is bool if user has viewed the notification yet, default to false on notify creation        
-def post_notification(owners_id, cur_user_id, type_of_notify, notified_id):
+def post_notification(owners_id, cur_user_id, type_of_notify, tweet_id, comment_id):
     args_list = [owners_id, cur_user_id, type_of_notify]
     if any(arg is None for arg in args_list):
         print("Unable to create notification, null values exist")
@@ -74,7 +74,7 @@ def post_notification(owners_id, cur_user_id, type_of_notify, notified_id):
 
         if type_of_notify == "like":
             db_commit("INSERT INTO notification(owner_id, cur_user_id, type_of_notify, seen, tweet_id) \
-                        VALUES(?,?,?,?,?)", [owners_id, cur_user_id, type_of_notify, isSeen, notified_id])
+                        VALUES(?,?,?,?,?)", [owners_id, cur_user_id, type_of_notify, isSeen, tweet_id])
 
         elif type_of_notify == "follow":
             db_commit("INSERT INTO notification(owner_id, cur_user_id, type_of_notify, seen) VALUES(?,?,?,?)", \

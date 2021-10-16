@@ -77,10 +77,9 @@ def api_follows():
                                 db_commit("INSERT INTO follows(follower, followed) VALUES(?,?)", [user_id, follow_id])
 
                                 ####create notification
-                                #catch notification POST exceptions to avoid issue posting the tweetLike commit
+                                #catch notification POST exceptions to avoid issue posting the follows commit
                                 try: 
-                                    #get userid that tweet belongs to
-                                    post_notification(follow_id, user_id, "follow", None)                     
+                                    post_notification(follow_id, user_id, "follow", None, None)                     
                                 except: 
                                     print("Unable to create notification on follows")
 

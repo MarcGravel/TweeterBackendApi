@@ -2,6 +2,7 @@ from datetime import datetime
 from app_package import app
 from app_package.functions.dataManFunctions import pop_dict_req, check_length, pop_dict_comment
 from app_package.functions.queryFunctions import db_fetchall_args, db_index_fetchone, db_fetchone, db_commit
+from app_package.notifications import post_notification
 from flask import request, Response
 import json
 
@@ -95,6 +96,15 @@ def api_comments():
             
             #create response obj
             resp = pop_dict_comment(ret_data)
+
+            ####create notification
+            #catch notification POST exceptions to avoid issue posting the comment commit
+            try: 
+                #get userid that tweet belongs to
+                tweet_owner_id = db_index_fetchone("SELECT user_id FROM tweet WHERE id=?", [tweet_id])
+                post_notification(tweet_owner_id, user_id, tweet_id, "like")                     
+            except: 
+                print("Unable to create notification on tweet-likes")
 
             return Response(json.dumps(resp, default=str), mimetype="application/json", status=201) 
 

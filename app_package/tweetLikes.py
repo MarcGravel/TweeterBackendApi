@@ -81,7 +81,7 @@ def api_tweet_likes():
                             try: 
                                 #get userid that tweet belongs to
                                 tweet_owner_id = db_index_fetchone("SELECT user_id FROM tweet WHERE id=?", [tweet_id])
-                                post_notification(tweet_owner_id, user_id, tweet_id, "like")                     
+                                post_notification(tweet_owner_id, user_id, "like", tweet_id, None)                     
                             except: 
                                 print("Unable to create notification on tweet-likes")
                             
