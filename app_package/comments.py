@@ -83,7 +83,6 @@ def api_comments():
 
             #get userId from token
             user_id = db_index_fetchone("SELECT user_id FROM user_session WHERE login_token=?", [new_comment["loginToken"]])
-            print(user_id)
 
             #add data to new row
             db_commit("INSERT INTO comment(tweet_id, user_id, content, created_at) VALUES(?,?,?,?)", \
@@ -102,9 +101,24 @@ def api_comments():
             try: 
                 #get userid that tweet belongs to
                 tweet_owner_id = db_index_fetchone("SELECT user_id FROM tweet WHERE id=?", [tweet_id])
-                post_notification(tweet_owner_id, user_id, tweet_id, "like")                     
+                comment_id = ret_data[0]
+                post_notification(tweet_owner_id, user_id, "comment", tweet_id, comment_id)                     
             except: 
-                print("Unable to create notification on tweet-likes")
+                print("Unable to create notification on comments")
+
+            #send notifications to last user on comment chain of tweet
+            try:
+                #get all comments on tweet
+                all_comments_on = db_fetchall_args("SELECT * FROM comment WHERE tweet_id=?", [tweet_id])
+                #remove comments of current user to not notify themselves
+                filtered_comments = []
+                for a in all_comments_on:
+                    if a[2] != user_id:
+                        filtered_comments.append(a)
+                last_comment = filtered_comments[len(filtered_comments)-1]
+                post_notification(last_comment[2], user_id, "reply", last_comment[1], last_comment[0])
+            except:
+                print("Unable to create reply notification")
 
             return Response(json.dumps(resp, default=str), mimetype="application/json", status=201) 
 

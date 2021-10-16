@@ -48,9 +48,11 @@ def api_notifications():
 
     elif request.method == 'POST':
         #see below for function to post notification. function needs to be outside request.method 
-        #scope so other modules can access. On post of other requests, a notification post will be
+        #scope so other modules can access it. On post of other requests, a notification post will be
         #created after successfull db commit.
-        pass
+        return Response("Unable to access POST from this endpoint. Notifications POST accessed from tweet-likes, follows, and comments POSTS", \
+                        mimetype="text/plain", status=401)
+
     elif request.method == 'PATCH':
         pass
     elif request.method == 'DELETE':
@@ -59,7 +61,7 @@ def api_notifications():
         print("Something went wrong at notifications request.method")
         return Response("Something went wrong at request.method", mimetype='text/plain', status=500)
 
-#uowners_id is id of user being notified
+#owners_id is id of user being notified
 #others_id is id of user causing notification
 #notified_id is id of object being notified(id# of tweet or comment)
 #type_of_notify is what is causing notification (a tweet, a follow, a comment, a reply)
@@ -67,7 +69,7 @@ def api_notifications():
 def post_notification(owners_id, cur_user_id, type_of_notify, tweet_id, comment_id):
     args_list = [owners_id, cur_user_id, type_of_notify]
     if any(arg is None for arg in args_list):
-        print("Unable to create notification, null values exist")
+        print("Unable to create notification, null values exist in required columns")
     else:
         #default seen row always False
         isSeen = 0
@@ -79,9 +81,8 @@ def post_notification(owners_id, cur_user_id, type_of_notify, tweet_id, comment_
         elif type_of_notify == "follow":
             db_commit("INSERT INTO notification(owner_id, cur_user_id, type_of_notify, seen) VALUES(?,?,?,?)", \
                         [owners_id, cur_user_id, type_of_notify, isSeen])
-        elif type_of_notify == "comment":
-            pass
-        elif type_of_notify == "reply":
-            pass
+        elif type_of_notify == "comment" or type_of_notify == "reply":
+            db_commit("INSERT INTO notification(owner_id, cur_user_id, type_of_notify, seen, tweet_id, comment_id) \
+                        VALUES(?,?,?,?,?,?)", [owners_id, cur_user_id, type_of_notify, isSeen, tweet_id, comment_id])
         else:
             print("Incorrect notification type tag")

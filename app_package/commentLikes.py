@@ -90,7 +90,7 @@ def api_comment_likes():
         #check correct keys sent
         if len(data.keys()) == 2 and {"loginToken", "commentId"} <= data.keys():
             
-            #check tweetId is positive integer
+            #check commentId is positive integer
             if str(comment_id).isdigit() == False:
                 return Response("Not a valid tweet id number", mimetype="text/plain", status=400)
             
