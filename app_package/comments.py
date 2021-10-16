@@ -155,7 +155,36 @@ def api_comments():
             return Response("Invalid json data sent", mimetype="text/plain", status=400)
 
     elif request.method == 'DELETE':
-        pass
+        data = request.json
+        token = data.get("loginToken")
+        comment_id = data.get("commentId")
+
+        if len(data.keys()) == 2 and {"loginToken", "commentId"} <= data.keys():
+            if token != None:
+                #check token exists
+                token_valid = db_index_fetchone("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+
+                if token_valid == 1:
+                    #check commentId exists
+                    check_comment_id = db_index_fetchone("SELECT EXISTS(SELECT id FROM comment WHERE id=?)", [comment_id])
+
+                    if check_comment_id == 1:
+                        #check login token matches user comment
+                        rel_exists = db_index_fetchone("SELECT EXISTS(SELECT c.id FROM comment c INNER JOIN user_session u ON \
+                                                        c.user_id = u.user_id WHERE u.login_token=? AND c.id=?)", [token, comment_id])
+                        if rel_exists == 1:
+                            db_commit("DELETE FROM comment WHERE id=?", [comment_id])
+                            return Response(status=204)
+                        else:
+                            return Response("Unauthorized to delete this comment", mimetype="text/plain", status=401)
+                    else:
+                        return Response("Invalid comment id", mimetype="text/plain", status=400)
+                else:
+                    return Response("Invalid login token", mimetype="text/plain", status=400)
+            else:
+                return Response("Invalid login token", mimetype="text/plain", status=400)
+        else:
+            return Response("Invalid Json data", mimetype="text/plain", status=400)
     else:
         print("Something went wrong, bad request method")
         return Response("Method Not Allowed", mimetype='text/plain', status=405) 
