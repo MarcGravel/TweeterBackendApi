@@ -13,3 +13,4 @@ from app_package import tweets
 from app_package import tweetLikes
 from app_package import comments
 from app_package import commentLikes
+from app_package import notifications

@@ -86,3 +86,16 @@ def pop_comment_like(data):
         "username": data[2],
     }
     return like
+
+#populates a notification dict
+def pop_dict_note(data):
+    note = {
+        "notificationId": data[0],
+        "userId": data[1],
+        "othersId": data[2],
+        "typeOf": data[3],
+        "isSeen": data[4],
+        "tweetId": data[5],
+        "commentId": data[6] 
+    }
+    return note
