@@ -54,7 +54,26 @@ def api_notifications():
                         mimetype="text/plain", status=401)
 
     elif request.method == 'PATCH':
-        pass
+        #sets true (1) to all values in seen column that match ownerId and userId
+        data = request.json
+        token = data.get("loginToken")
+
+        if len(data.keys()) == 1 and {"loginToken"} <= data.keys():
+            #check login token valid
+            token_valid = db_index_fetchone("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+
+            if token_valid == 1:
+                #get user id from token
+                user_id = db_index_fetchone("SELECT user_id FROM user_session WHERE login_token=?", [token])
+
+                db_commit("UPDATE notification SET seen=1 WHERE owner_id=?", [user_id])
+                return Response(status=200)
+                
+            else:
+                return Response("Invalid login token", mimetype="text/plain", status=400)
+        else:
+            return Response("Invalid json data", mimetype="text/plain", status=400)
+
     elif request.method == 'DELETE':
         pass
     else:
