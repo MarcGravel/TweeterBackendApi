@@ -75,7 +75,34 @@ def api_notifications():
             return Response("Invalid json data", mimetype="text/plain", status=400)
 
     elif request.method == 'DELETE':
-        pass
+        data = request.json
+        token = data.get("loginToken")
+        user_id = data.get("userId")
+
+        #check proper keys submitted
+        if len(data.keys()) == 2 and {"loginToken", "userId"} <= data.keys():
+            #check userId is positive integer
+            if str(user_id).isdigit() == False:
+                return Response("Not a valid id number", mimetype="text/plain", status=400)
+
+            #check loginToken valid
+            token_valid = db_index_fetchone("SELECT EXISTS(SELECT login_token FROM user_session WHERE login_token=?)", [token])
+
+            if token_valid == 1:
+                #check id matches token
+                user_is_valid = db_index_fetchone("SELECT EXISTS(SELECT id FROM user_session WHERE login_token=? \
+                                                    AND user_id=?)", [token, user_id])
+                
+                if user_is_valid == 1:
+                    db_commit("DELETE FROM notification WHERE owner_id=?", [user_id])
+                    return Response(status=204)
+                else:
+                    return Response("Token does not match id", mimetype="text/plain", status=400)
+            else:
+                return Response("Invalid login token", mimetype="text/plain", status=400)
+        else:
+            return Response("Invalid json data sent", mimetype="text/plain", status=400)
+
     else:
         print("Something went wrong at notifications request.method")
         return Response("Something went wrong at request.method", mimetype='text/plain', status=500)
