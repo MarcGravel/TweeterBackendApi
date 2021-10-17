@@ -97,28 +97,34 @@ def api_comments():
             resp = pop_dict_comment(ret_data)
 
             ####create notification
-            #catch notification POST exceptions to avoid issue posting the comment commit
-            try: 
-                #get userid that tweet belongs to
-                tweet_owner_id = db_index_fetchone("SELECT user_id FROM tweet WHERE id=?", [tweet_id])
-                comment_id = ret_data[0]
-                post_notification(tweet_owner_id, user_id, "comment", tweet_id, comment_id)                     
-            except: 
-                print("Unable to create notification on comments")
+            #get userid that tweet belongs to
+            tweet_owner_id = db_index_fetchone("SELECT user_id FROM tweet WHERE id=?", [tweet_id])
+
+            #do not create notification if user and owner of tweet are the same
+            if tweet_owner_id != user_id:
+                #catch notification POST exceptions to avoid issue posting the comment commit
+                try: 
+                    comment_id = ret_data[0]
+                    post_notification(tweet_owner_id, user_id, "comment", tweet_id, comment_id)                     
+                except: 
+                    print("Unable to create notification on comments")
 
             #send notifications to last user on comment chain of tweet
-            try:
-                #get all comments on tweet
-                all_comments_on = db_fetchall_args("SELECT * FROM comment WHERE tweet_id=?", [tweet_id])
-                #remove comments of current user to not notify themselves
-                filtered_comments = []
-                for a in all_comments_on:
-                    if a[2] != user_id:
-                        filtered_comments.append(a)
-                last_comment = filtered_comments[len(filtered_comments)-1]
-                post_notification(last_comment[2], user_id, "reply", last_comment[1], last_comment[0])
-            except:
-                print("Unable to create reply notification")
+            #do not send notification if last user and current user are same
+
+            #get all comments on tweet
+            all_comments_on = db_fetchall_args("SELECT * FROM comment WHERE tweet_id=?", [tweet_id])
+            
+            #grabs the last comment made BEFORE current comment posted above.       
+            last_comment = all_comments_on[len(all_comments_on)-2]
+
+            #this checks if last comment was from current user
+            # so no notification is sent on a reply to themselves
+            if last_comment[2] != user_id:
+                try:
+                    post_notification(last_comment[2], user_id, "reply", last_comment[1], last_comment[0])
+                except:
+                    print("Unable to create reply notification")
 
             return Response(json.dumps(resp, default=str), mimetype="application/json", status=201) 
 
