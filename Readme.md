@@ -864,9 +864,7 @@ the notifications/POST will be triggered and will use valid data from the other 
 
 A valid notification POST will trigger a new notification for a user whos:
 
-Tweet is liked, has a new follower, has a new comment on their tweet, has their comment replied to on any tweet. 
-
-tweet-likes, follows, and comments POSTS", status=401
+Tweet is liked, has a new follower, has a new comment on their tweet, or has their comment replied to on any tweet. 
 
 ### PATCH
 HTTP success code: 200
