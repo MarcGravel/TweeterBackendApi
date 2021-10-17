@@ -40,8 +40,10 @@ def api_users():
                 if check_id_valid == 1:
                     sel_usr = db_fetchone("SELECT id, email, username, bio, birthdate, image_url, banner_url FROM user WHERE id=?", [param_id])
                     resp = pop_dict_query(sel_usr)
+                    resp_list = []
+                    resp_list.append(resp)
 
-                    return Response(json.dumps(resp), mimetype="application/json", status=200)
+                    return Response(json.dumps(resp_list), mimetype="application/json", status=200)
                 else:
                     return Response("User id does not exist", mimetype="text/plain", status=400)
             else:
