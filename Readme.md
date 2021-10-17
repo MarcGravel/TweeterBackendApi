@@ -38,6 +38,8 @@ Werkzeug==2.0.2
 
 [Comment Likes](#comment-likes-apicomment-likes)
 
+[Notifications](#notifications-apinotifications)
+
 # Usage
 
 ## User Login: /api/login
@@ -766,6 +768,8 @@ JSON Data Sent:
         "userId": 1,
         "username": "TheLorax"
     },
+
+No JSON Returned
 ```
 
 ### DELETE
@@ -785,6 +789,118 @@ JSON Data Sent:
     { 
       "loginToken": "LIAbfvh341uNAS314",
       "commentId": "4"
+    }
+
+No JSON Returned
+```
+
+## Notifications: /api/notifications
+The comments end point supports GET, *POST*, PATCH, and DELETE methods.
+POST is not accessible via the /notifications endpoint and will run automatically on
+tweet-likes/POST, comments/POST, and follows/POST methods
+
+### GET
+HTTP success code: 200
+GET will get all notifications for current user. GET includes all notifications
+that exist in the database for the user, not just new/unseen notifications.
+
+Required to send loginToken in headers to ensure data privacy
+
+Required to send userId in params, userId and loginToken combo must be valid to return data
+
+isSeen returns a boolean 0 or 1 depending if the notification has already been viewed by the user.
+
+ownerId is the userId that has been sent over, othersId is the id of the user that created the notification on a POST method.
+
+Required headers: {"loginToken"}
+Required params: {"userId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "userId": "57"
+    }
+
+JSON Data Returned: 
+    [
+      {
+        "notificationId": 45,
+        "ownerId": 57,
+        "othersId": 10,
+        "typeOf": "like",
+        "isSeen": 0,
+        "tweetId": null,
+        "commentId": null
+    },
+    {
+        "notificationId": 44,
+        "ownerId": 57,
+        "othersId": 23,
+        "typeOf": "follow",
+        "isSeen": 0,
+        "tweetId": 66,
+        "commentId": null
+    },
+    {
+        "notificationId": 73,
+        "ownerId": 57,
+        "othersId": 84,
+        "typeOf": "comment",
+        "isSeen": 1,
+        "tweetId": 66,
+        "commentId": 71
+    },
+    ]
+```
+### POST
+HTTP return code: 401
+
+This method is not accessible from the /api/notifications endpoint.
+
+When sending a *successfull* post on tweet-likes, comments, follows endpoints
+the notifications/POST will be triggered and will use valid data from the other POST methods to submit a valid notification POST. 
+
+A valid notification POST will trigger a new notification for a user whos:
+
+Tweet is liked, has a new follower, has a new comment on their tweet, has their comment replied to on any tweet. 
+
+tweet-likes, follows, and comments POSTS", status=401
+
+### PATCH
+HTTP success code: 200
+
+PATCH will update all notifications to seen=0 (seen=True) for the specific userId that
+matches the loginToken that is sent.
+
+Required Data: {"loginToken"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314"
+    }
+
+No JSON Returned 
+```
+
+### DELETE
+HTTP success code: 204
+
+DELETE will delete all notifications (seen and unseen) that match userId sent.
+
+LoginToken and userId must match for successful delete.
+
+Required Data: {"loginToken", "userId"}
+```json
+Example Data:
+
+JSON Data Sent:
+    { 
+      "loginToken": "LIAbfvh341uNAS314",
+      "userId": "57"
     }
 
 No JSON Returned
