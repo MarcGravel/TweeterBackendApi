@@ -854,18 +854,6 @@ JSON Data Returned:
     },
     ]
 ```
-### POST
-HTTP return code: 401
-
-This method is not accessible from the /api/notifications endpoint.
-
-When sending a *successfull* post on tweet-likes, comments, follows endpoints
-the notifications/POST will be triggered and will use valid data from the other POST methods to submit a valid notification POST. 
-
-A valid notification POST will trigger a new notification for a user whos:
-
-Tweet is liked, has a new follower, has a new comment on their tweet, or has their comment replied to on any tweet. 
-
 ### PATCH
 HTTP success code: 200
 
