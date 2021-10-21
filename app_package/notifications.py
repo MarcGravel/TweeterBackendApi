@@ -4,7 +4,7 @@ from app_package.functions.dataManFunctions import pop_comment_like, pop_dict_no
 from flask import request, Response
 import json
 
-@app.route('/api/notifications', methods=['GET', 'POST', 'PATCH', 'DELETE'])
+@app.route('/api/notifications', methods=['GET', 'PATCH', 'DELETE'])
 def api_notifications():
     if request.method == 'GET':
         #gets all notifications for current user. 
@@ -45,13 +45,6 @@ def api_notifications():
                 return Response("User id does not exist", mimetype="text/plain", status=400)
         else:
             return Response("Invalid json data sent", mimetype="text/plain", status=400)
-
-    elif request.method == 'POST':
-        #see below for function to post notification. function needs to be outside request.method 
-        #scope so other modules can access it. On post of other requests, a notification post will be
-        #created after successfull db commit.
-        return Response("Unable to access POST from this endpoint. Notifications POST accessed from tweet-likes, follows, and comments POSTS", \
-                        mimetype="text/plain", status=401)
 
     elif request.method == 'PATCH':
         #sets true (1) to all values in seen column that match ownerId and userId
