@@ -1,6 +1,10 @@
 # Tweeter API
 
-Tweeter API allows users to access multiple endpoints and perform basic CRUD requests based on specific endpoints and data passed. This API is currently under construction and not deployed.
+Tweeter API allows users to access multiple endpoints and perform basic CRUD requests based on specific endpoints and data passed.
+
+This API is designed only to be used with the website: [Tweeter](https://thetweeter.ga)
+
+See Tweeter frontend repo [here](https://github.com/MarcGravel/Tweeter)
 
 ## Installation
 
