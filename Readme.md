@@ -60,7 +60,7 @@ Return data contains confirmation information about the user as well as a login 
 An error will be returned if the login information is invalid.
 
 Client can send either username OR email along with the password for login validation.  
-  
+
 Required data: {"email", "password"} OR {"username", "password"}
 
 ```json

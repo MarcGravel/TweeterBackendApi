@@ -5,6 +5,7 @@ from flask import request, Response
 import json
 import secrets #package to create session token strings
 import validators #validates URLs
+import bcrypt #password encryption
 
 @app.route('/api/users', methods=['GET', 'POST', 'PATCH', 'DELETE'])
 def api_users():
@@ -95,6 +96,11 @@ def api_users():
         #check password valid
         if not check_length(new_user["password"], 6, 50):
             return Response("Password must be between 6 and 50 characters", mimetype="text/plain", status=400)
+        
+        #salt and hash password
+        pw = str(new_user["password"])
+        salt = bcrypt.gensalt()
+        hashed_pass = bcrypt.hashpw(pw.encode(), salt)
 
         #check bio valid
         if not check_length(new_user["bio"], 1, 70):
@@ -107,7 +113,7 @@ def api_users():
         #adds data to new row in db
         db_commit("INSERT INTO user(email, username, password, bio, birthdate) \
                         VALUES(?,?,?,?,?)", [new_user["email"], new_user["username"], 
-                            new_user["password"], new_user["bio"], new_user["birthdate"]])
+                            hashed_pass, new_user["bio"], new_user["birthdate"]])
 
         user_id = db_index_fetchone("SELECT id FROM user WHERE email=?", [new_user["email"]])
 

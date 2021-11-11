@@ -4,6 +4,7 @@ from app_package.functions.queryFunctions import db_commit, db_fetchone, db_inde
 from flask import request, Response
 import secrets #package to create session token strings
 import json
+import bcrypt
 
 @app.route('/api/login', methods=['POST', 'DELETE'])
 def api_login():
@@ -27,7 +28,7 @@ def api_login():
                     db_pass = db_index_fetchone("SELECT password FROM user WHERE email=?", [email])
                     
                     # if matching, generate a login token, store it in user session and return success message with token and all user data
-                    if db_pass == password:
+                    if bcrypt.checkpw(str(password).encode(), str(db_pass).encode()):
                         usr = db_fetchone("SELECT id, email, username, bio, birthdate, image_url, banner_url FROM user WHERE email=?", [email])
                         login_token = secrets.token_urlsafe(16)
                         
